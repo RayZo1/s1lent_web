@@ -56,6 +56,10 @@ h1 {
     color: var(--primary);
 }
 
+.free {
+    color: var(--free);
+}
+
 p {
     margin-bottom: 2rem;
     opacity: 0.8;
