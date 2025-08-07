@@ -4,6 +4,7 @@
     --glass: rgba(255, 255, 255, 0.15); /* Lighter glass effect */
     --text: rgba(255, 255, 255, 0.9);
     --bg-dark: #121212; /* Dark gray background */
+    --free: #33cc33;
 }
 
 * {
