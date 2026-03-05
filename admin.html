@@ -13,6 +13,25 @@
     <div id="toast-container"></div>
     <div id="particles"></div>
 
+    <div id="give-license-modal" class="modal-overlay" aria-hidden="true" onclick="closeGiveLicenseModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <h3 class="modal-title">Give license</h3>
+            <p class="modal-desc">Create a new license and assign it to this user.</p>
+            <div class="input-group">
+                <label for="giveLicenseDays" class="modal-label">Expiry (days)</label>
+                <input type="number" id="giveLicenseDays" placeholder="e.g. 30" value="30" min="1">
+            </div>
+            <div class="input-group">
+                <label for="giveLicensePrefix" class="modal-label">Prefix (optional)</label>
+                <input type="text" id="giveLicensePrefix" placeholder="UG" value="UG">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn danger-btn" onclick="closeGiveLicenseModal()">Cancel</button>
+                <button type="button" class="btn primary-btn" onclick="confirmGiveLicense()">Give license</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container admin-container" style="display: none;" id="contentBox">
         <div class="header">
             <h1 class="brand">Klient</h1>

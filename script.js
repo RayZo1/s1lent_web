@@ -261,16 +261,42 @@ async function takeLicense(userId) {
     await takeAction("take_license", userId);
 }
 
-async function giveLicense(userId) {
-    const daysStr = prompt("Expiry in days (e.g. 30):", "30");
-    if (daysStr == null || daysStr.trim() === "") return;
-    const days = parseInt(daysStr.trim(), 10);
+let _giveLicenseUserId = null;
+
+function openGiveLicenseModal(userId) {
+    _giveLicenseUserId = userId;
+    const modal = document.getElementById("give-license-modal");
+    const daysEl = document.getElementById("giveLicenseDays");
+    const prefixEl = document.getElementById("giveLicensePrefix");
+    if (daysEl) daysEl.value = "30";
+    if (prefixEl) prefixEl.value = "UG";
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+}
+
+function closeGiveLicenseModal() {
+    _giveLicenseUserId = null;
+    const modal = document.getElementById("give-license-modal");
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+}
+
+async function confirmGiveLicense() {
+    if (!_giveLicenseUserId) return closeGiveLicenseModal();
+    const daysEl = document.getElementById("giveLicenseDays");
+    const prefixEl = document.getElementById("giveLicensePrefix");
+    const days = parseInt(daysEl?.value?.trim() || "30", 10);
     if (isNaN(days) || days < 1) {
         showToast("Enter a valid number of days.", "warning");
         return;
     }
-    const prefix = prompt("License prefix (optional, default UG):", "UG")?.trim() || "UG";
-    await takeAction("give_license", userId, { days, prefix });
+    const prefix = prefixEl?.value?.trim() || "UG";
+    closeGiveLicenseModal();
+    await takeAction("give_license", _giveLicenseUserId, { days, prefix });
+}
+
+async function giveLicense(userId) {
+    openGiveLicenseModal(userId);
 }
 
 async function deleteAvailableLicense(recordId) {
