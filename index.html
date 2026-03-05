@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>s1lent.aim</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
+    <title>Underground - Login</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Animated background bubbles -->
-    <div id="bubbles"></div>
+    <div id="particles"></div>
 
-    <div class="container">
-        <h1>s1lent<span class="app-name">.aim</span></h1>
-        <p>Join discord for announcements and keys.</span></p>
+    <div class="container login-container">
+        <h1>UNDER<span class="app-name">GROUND</span></h1>
+        <p>Enter your license key to access the panel.</p>
         
-        <!-- Download Button -->
-        <a href="https://gofile.io/d/FunZ2U" class="btn download-btn">
-            Let me cook bro.
-        </a>
+        <div class="input-group">
+            <input type="text" id="licenseKey" placeholder="License Key" autocomplete="off">
+        </div>
 
-        <!-- Discord Button -->
-        <a href="https://discord.gg/CMYcdczbwj" class="btn discord-btn">
-            Discord
+        <button class="btn primary-btn" onclick="login()">
+            Authenticate
+        </button>
+
+        <a href="https://discord.gg/underground" class="discord-link" target="_blank">
+            Need a key? Join our Discord.
         </a>
     </div>
 

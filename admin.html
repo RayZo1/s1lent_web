@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Underground - Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="particles"></div>
+
+    <div class="container admin-container" style="display: none;" id="contentBox">
+        <div class="header">
+            <h1>UNDER<span class="app-name">GROUND</span> <span class="badge">ADMIN</span></h1>
+            <button class="btn danger-btn sm-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="admin-grid">
+
+            <div class="card stats-card">
+                <h3>Statistics</h3>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <span class="stat-value" id="a_users">0</span>
+                        <span class="stat-label">Total Users</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value" id="a_bans">0</span>
+                        <span class="stat-label">Active Bans</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value" id="a_version">1.0</span>
+                        <span class="stat-label">Latest Version</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card action-card">
+                <h3>Generate License</h3>
+                <div class="input-group">
+                    <input type="number" id="genDays" placeholder="License Duration (Days)" value="30">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="genPrefix" placeholder="Custom Prefix (Optional)" value="UG">
+                </div>
+                <button class="btn primary-btn full-width" onclick="generateLicense()">Generate Key</button>
+            </div>
+
+            <div class="card action-card">
+                <h3>Manage User</h3>
+                <div class="input-group">
+                    <input type="text" id="manageTarget" placeholder="HWID or Discord ID">
+                </div>
+                <div class="btn-grid">
+                    <button class="btn warning-btn" onclick="takeAction('reset')">Reset HWID</button>
+                    <button class="btn danger-btn" onclick="takeAction('wipe')">Wipe User</button>
+                    <button class="btn danger-btn outline" onclick="takeAction('suspend')">Suspend</button>
+                    <button class="btn primary-btn outline" onclick="takeAction('unsuspend')">Unsuspend</button>
+                    <button class="btn danger-btn" onclick="takeAction('ban')" style="grid-column: span 2;">Ban
+                        HWID</button>
+                </div>
+            </div>
+
+            <div class="card action-card">
+                <h3>Update Product</h3>
+                <div class="input-group">
+                    <input type="text" id="updateVersion" placeholder="New Version (e.g. 1.2)">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="updateUrl" placeholder="New Download URL">
+                </div>
+                <button class="btn primary-btn full-width" onclick="updateProduct()">Publish Update</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            initAdminPanel();
+        });
+    </script>
+</body>
+
+</html>

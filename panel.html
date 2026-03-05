@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Underground - Panel</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="particles"></div>
+
+    <div class="container panel-container" style="display: none;" id="contentBox">
+        <div class="header">
+            <h1>UNDER<span class="app-name">GROUND</span></h1>
+            <button class="btn danger-btn sm-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="panel-grid">
+            <div class="card status-card">
+                <h3>License Details</h3>
+                <div class="info-row">
+                    <span>Status:</span>
+                    <span id="u_status" class="highlight">Loading...</span>
+                </div>
+                <div class="info-row">
+                    <span>Expiry Date:</span>
+                    <span id="u_expiry">Loading...</span>
+                </div>
+            </div>
+
+            <div class="card id-card">
+                <h3>Connection Info</h3>
+                <div class="info-row">
+                    <span>HWID:</span>
+                    <span id="u_hwid" class="code-text">Loading...</span>
+                </div>
+                <div class="info-row">
+                    <span>Discord ID:</span>
+                    <span id="u_discord" class="code-text">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn primary-btn pulse" id="downloadBtn" onclick="downloadProduct()">
+                Download Latest Version
+            </button>
+            <a href="https://discord.gg/underground" target="_blank" class="btn discord-btn">
+                Join Discord Server
+            </a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            initUserPanel();
+        });
+    </script>
+</body>
+
+</html>
