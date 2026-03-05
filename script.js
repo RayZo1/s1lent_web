@@ -228,12 +228,14 @@ async function refreshUserList() {
                 </div>
             </div>
             <div class="btn-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-                <button class="btn warning-btn sm-btn" onclick="quickAction('reset', '${id}')">Reset HWID</button>
-                <button class="btn danger-btn sm-btn" onclick="quickAction('wipe', '${id}')">Wipe</button>
-                <button class="btn danger-btn sm-btn outline" onclick="quickAction('suspend', '${id}')">Suspend</button>
-                <button class="btn primary-btn sm-btn outline" onclick="quickAction('unsuspend', '${id}')">Unsuspend</button>
-                <button class="btn danger-btn sm-btn" onclick="quickAction('ban', '${data.hwid}')">Ban HWID</button>
-                <button class="btn success-btn sm-btn" onclick="quickAction('unban', '${data.hwid}')" style="background: var(--success); color: white;">Unban HWID</button>
+                <button class="btn warning-btn sm-btn" onclick="quickAction('reset', '${esc(id)}')">Reset HWID</button>
+                <button class="btn danger-btn sm-btn" onclick="quickAction('wipe', '${esc(id)}')">Wipe</button>
+                <button class="btn primary-btn sm-btn" onclick="takeLicense('${esc(id)}')">Take license</button>
+                <button class="btn success-btn sm-btn" onclick="giveLicense('${esc(id)}')" style="background: var(--success); color: white;">Give license</button>
+                <button class="btn danger-btn sm-btn outline" onclick="quickAction('suspend', '${esc(id)}')">Suspend</button>
+                <button class="btn primary-btn sm-btn outline" onclick="quickAction('unsuspend', '${esc(id)}')">Unsuspend</button>
+                <button class="btn danger-btn sm-btn" onclick="quickAction('ban', '${esc(data.hwid)}')">Ban HWID</button>
+                <button class="btn success-btn sm-btn" onclick="quickAction('unban', '${esc(data.hwid)}')" style="background: var(--success); color: white;">Unban HWID</button>
             </div>
         `;
 
@@ -247,12 +249,32 @@ async function refreshUserList() {
     }
 }
 
+function esc(s) {
+    return String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
 async function quickAction(action, target) {
     await takeAction(action, target);
 }
 
+async function takeLicense(userId) {
+    await takeAction("take_license", userId);
+}
+
+async function giveLicense(userId) {
+    const daysStr = prompt("Expiry in days (e.g. 30):", "30");
+    if (daysStr == null || daysStr.trim() === "") return;
+    const days = parseInt(daysStr.trim(), 10);
+    if (isNaN(days) || days < 1) {
+        showToast("Enter a valid number of days.", "warning");
+        return;
+    }
+    const prefix = prompt("License prefix (optional, default UG):", "UG")?.trim() || "UG";
+    await takeAction("give_license", userId, { days, prefix });
+}
+
 async function deleteAvailableLicense(recordId) {
-    await takeAction('wipe', recordId);
+    await takeAction("wipe", recordId);
 }
 
 function filterUsers() {
@@ -273,17 +295,11 @@ function filterUsers() {
 async function generateLicense() {
     const days = document.getElementById('genDays').value || 30;
     const prefix = document.getElementById('genPrefix').value || "UG";
-    const isAdmin = document.getElementById('genIsAdmin').checked;
-
-    let body = { days, prefix };
-    if (isAdmin) {
-        body.target_id = "admin";
-    }
+    const body = { days, prefix };
 
     const res = await apiCall("/admin/create_license", "POST", body);
     if (res.status === "success") {
         showToast(`License created!\n\n${res.license}\n\nExpires: ${res.expiry}`, "success", 7000);
-        document.getElementById('genIsAdmin').checked = false;
         refreshAdminStats();
         refreshUserList();
     } else {
@@ -291,14 +307,16 @@ async function generateLicense() {
     }
 }
 
-async function takeAction(action, targetFromButton) {
-    const target = targetFromButton != null ? targetFromButton : (document.getElementById('manageTarget')?.value?.trim() || "");
+async function takeAction(action, targetFromButton, extra) {
+    const target = targetFromButton != null ? targetFromButton : (document.getElementById("manageTarget")?.value?.trim() || "");
     if (!target) return showToast("Provide a HWID or Discord ID.", "warning");
 
     const body = { action, target };
+    if (extra && typeof extra === "object") Object.assign(body, extra);
     const res = await apiCall("/admin/action", "POST", body);
     if (res.status === "success") {
-        showToast(res.message, "success");
+        if (res.license) showToast(`${res.message}\n\nKey: ${res.license}\nExpires: ${res.expiry}`, "success", 6000);
+        else showToast(res.message, "success");
         refreshAdminStats();
         refreshUserList();
     } else {
