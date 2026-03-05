@@ -122,15 +122,6 @@ h1 {
     text-shadow: 0 0 20px var(--primary-glow);
 }
 
-.badge {
-    font-size: 0.9rem;
-    background: var(--danger);
-    padding: 2px 8px;
-    border-radius: 4px;
-    vertical-align: middle;
-    margin-left: 10px;
-}
-
 p {
     color: var(--text-muted);
     margin-bottom: 2rem;
