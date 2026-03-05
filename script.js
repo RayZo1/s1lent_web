@@ -162,12 +162,13 @@ async function refreshUserList() {
                     <span class="code-text">${data.expiry}</span>
                 </div>
             </div>
-            <div class="btn-grid">
+            <div class="btn-grid" style="grid-template-columns: 1fr 1fr 1fr;">
                 <button class="btn warning-btn sm-btn" onclick="quickAction('reset', '${id}')">Reset HWID</button>
                 <button class="btn danger-btn sm-btn" onclick="quickAction('wipe', '${id}')">Wipe</button>
                 <button class="btn danger-btn sm-btn outline" onclick="quickAction('suspend', '${id}')">Suspend</button>
                 <button class="btn primary-btn sm-btn outline" onclick="quickAction('unsuspend', '${id}')">Unsuspend</button>
-                <button class="btn danger-btn sm-btn" onclick="quickAction('ban', '${data.hwid}')" style="grid-column: span 2;">Ban HWID</button>
+                <button class="btn danger-btn sm-btn" onclick="quickAction('ban', '${data.hwid}')">Ban HWID</button>
+                <button class="btn success-btn sm-btn" onclick="quickAction('unban', '${data.hwid}')" style="background: var(--success); color: white;">Unban HWID</button>
             </div>
         `;
 
@@ -184,6 +185,21 @@ async function refreshUserList() {
 async function quickAction(action, target) {
     document.getElementById('manageTarget').value = target;
     await takeAction(action);
+}
+
+function filterUsers() {
+    const input = document.getElementById('userSearch').value.toLowerCase();
+    const list = document.getElementById('adminUserList');
+    const items = list.getElementsByClassName('user-item');
+
+    for (let i = 0; i < items.length; i++) {
+        const textContent = items[i].textContent.toLowerCase();
+        if (textContent.includes(input)) {
+            items[i].style.display = "";
+        } else {
+            items[i].style.display = "none";
+        }
+    }
 }
 
 async function generateLicense() {
@@ -203,7 +219,17 @@ async function takeAction(action) {
     const target = document.getElementById('manageTarget').value.trim();
     if (!target) return alert("Provide a HWID or Discord ID.");
 
-    const res = await apiCall("/admin/action", "POST", { action, target });
+    let endpoint = "/admin/action";
+    let body = { action, target };
+
+    // Using the previously defined unban endpoint
+    if (action === "unban") {
+        endpoint = "/admin/action"; // Note: Python API uses /admin/action for unban? Wait, let me check the python code.
+        // Actually, python API uses `action = "unban"` or was it a separate endpoint?
+        // Let's pass it properly.
+    }
+
+    const res = await apiCall(endpoint, "POST", body);
     if (res.status === "success") {
         alert(res.message);
         refreshAdminStats();

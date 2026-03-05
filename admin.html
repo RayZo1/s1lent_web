@@ -59,8 +59,9 @@
                     <button class="btn danger-btn" onclick="takeAction('wipe')">Wipe User</button>
                     <button class="btn danger-btn outline" onclick="takeAction('suspend')">Suspend</button>
                     <button class="btn primary-btn outline" onclick="takeAction('unsuspend')">Unsuspend</button>
-                    <button class="btn danger-btn" onclick="takeAction('ban')" style="grid-column: span 2;">Ban
-                        HWID</button>
+                    <button class="btn danger-btn" onclick="takeAction('ban')">Ban HWID</button>
+                    <button class="btn success-btn" onclick="takeAction('unban')"
+                        style="background: var(--success); color: white;">Unban HWID</button>
                 </div>
             </div>
 
@@ -79,6 +80,11 @@
 
         <div class="card full-width list-card">
             <h3>Registered Licenses</h3>
+            <div class="input-group" style="margin-bottom: 20px;">
+                <input type="text" id="userSearch" placeholder="Search by Discord ID, Username, or HWID..."
+                    onkeyup="filterUsers()">
+            </div>
+
             <div class="user-list" id="adminUserList">
                 <p>Loading users...</p>
             </div>
