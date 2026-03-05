@@ -26,7 +26,11 @@
                 <div class="stats-row">
                     <div class="stat-box">
                         <span class="stat-value" id="a_users">0</span>
-                        <span class="stat-label">Total Users</span>
+                        <span class="stat-label">Users</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value" id="a_available">0</span>
+                        <span class="stat-label">Available Licenses</span>
                     </div>
                     <div class="stat-box">
                         <span class="stat-value" id="a_bans">0</span>
@@ -56,22 +60,6 @@
             </div>
 
             <div class="card action-card">
-                <h3>Manage User</h3>
-                <div class="input-group">
-                    <input type="text" id="manageTarget" placeholder="HWID or Discord ID">
-                </div>
-                <div class="btn-grid">
-                    <button class="btn warning-btn" onclick="takeAction('reset')">Reset HWID</button>
-                    <button class="btn danger-btn" onclick="takeAction('wipe')">Wipe User</button>
-                    <button class="btn danger-btn outline" onclick="takeAction('suspend')">Suspend</button>
-                    <button class="btn primary-btn outline" onclick="takeAction('unsuspend')">Unsuspend</button>
-                    <button class="btn danger-btn" onclick="takeAction('ban')">Ban HWID</button>
-                    <button class="btn success-btn" onclick="takeAction('unban')"
-                        style="background: var(--success); color: white;">Unban HWID</button>
-                </div>
-            </div>
-
-            <div class="card action-card">
                 <h3>Update</h3>
                 <div class="input-group">
                     <input type="text" id="updateVersion" placeholder="New Version (e.g. 1.2)">
@@ -85,14 +73,23 @@
         </div>
 
         <div class="card full-width list-card">
-            <h3>Licenses</h3>
-            <div class="input-group" style="margin-bottom: 20px;">
-                <input type="text" id="userSearch" placeholder="Search by Discord ID, Username, or HWID..."
-                    onkeyup="filterUsers()">
+            <div class="list-tabs">
+                <button type="button" class="tab-btn active" data-tab="available" onclick="switchAdminTab('available')">Available Licenses</button>
+                <button type="button" class="tab-btn" data-tab="users" onclick="switchAdminTab('users')">Users</button>
             </div>
-
-            <div class="user-list" id="adminUserList">
-                <p>Loading users...</p>
+            <div id="tab-available" class="tab-pane active">
+                <div class="user-list" id="adminAvailableList">
+                    <p>Loading...</p>
+                </div>
+            </div>
+            <div id="tab-users" class="tab-pane" style="display: none;">
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <input type="text" id="userSearch" placeholder="Search by Discord ID, Username, HWID, or License..."
+                        onkeyup="filterUsers()">
+                </div>
+                <div class="user-list" id="adminUserList">
+                    <p>Loading users...</p>
+                </div>
             </div>
         </div>
     </div>

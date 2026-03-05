@@ -125,10 +125,22 @@ async function initAdminPanel() {
     refreshUserList();
 }
 
+function switchAdminTab(tab) {
+    document.querySelectorAll('.list-tabs .tab-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-tab') === tab);
+    });
+    document.querySelectorAll('.list-card .tab-pane').forEach(p => {
+        p.classList.toggle('active', p.id === 'tab-' + tab);
+        p.style.display = p.id === 'tab-' + tab ? 'block' : 'none';
+    });
+}
+
 async function refreshAdminStats() {
     const res = await apiCall("/admin/stats");
     if (res.status === "success") {
         document.getElementById('a_users').textContent = res.total_users;
+        const aAvailable = document.getElementById('a_available');
+        if (aAvailable) aAvailable.textContent = res.available_licenses ?? 0;
         document.getElementById('a_bans').textContent = res.active_bans;
         document.getElementById('a_version').textContent = res.version;
     }
@@ -136,16 +148,41 @@ async function refreshAdminStats() {
 
 async function refreshUserList() {
     const res = await apiCall("/admin/users");
-    const container = document.getElementById('adminUserList');
-    if (res.status !== "success" || !container) return;
+    const userListEl = document.getElementById('adminUserList');
+    const availableListEl = document.getElementById('adminAvailableList');
+    if (res.status !== "success") return;
 
-    container.innerHTML = "";
+    // Available Licenses tab
+    if (availableListEl) {
+        availableListEl.innerHTML = "";
+        const available = res.available_licenses || [];
+        if (available.length === 0) {
+            availableListEl.innerHTML = "<p>No available licenses. Generate some in the Create section above.</p>";
+        } else {
+            for (const row of available) {
+                let expiryStr = row.expiry || "";
+                if (expiryStr.length === 8) {
+                    expiryStr = `${expiryStr.substring(0, 4)}-${expiryStr.substring(4, 6)}-${expiryStr.substring(6, 8)}`;
+                }
+                const div = document.createElement("div");
+                div.className = "license-row";
+                div.innerHTML = `
+                    <span class="code-text">${row.license}</span>
+                    <span class="code-text">Expires: ${expiryStr}</span>
+                `;
+                availableListEl.appendChild(div);
+            }
+        }
+    }
 
-    const users = res.users;
+    // Users tab
+    if (!userListEl) return;
+    userListEl.innerHTML = "";
+    const users = res.users || {};
     const banned = res.banned || [];
 
     if (Object.keys(users).length === 0) {
-        container.innerHTML = "<p>No users found.</p>";
+        userListEl.innerHTML = "<p>No users yet. Once someone links and uses a license, they appear here.</p>";
         return;
     }
 
@@ -207,8 +244,7 @@ async function refreshUserList() {
 }
 
 async function quickAction(action, target) {
-    document.getElementById('manageTarget').value = target;
-    await takeAction(action);
+    await takeAction(action, target);
 }
 
 function filterUsers() {
@@ -247,19 +283,12 @@ async function generateLicense() {
     }
 }
 
-async function takeAction(action) {
-    const target = document.getElementById('manageTarget').value.trim();
+async function takeAction(action, targetFromButton) {
+    const target = targetFromButton != null ? targetFromButton : (document.getElementById('manageTarget')?.value?.trim() || "");
     if (!target) return showToast("Provide a HWID or Discord ID.", "warning");
 
-    let endpoint = "/admin/action";
-    let body = { action, target };
-
-    // Using the previously defined unban endpoint
-    if (action === "unban") {
-        endpoint = "/admin/action";
-    }
-
-    const res = await apiCall(endpoint, "POST", body);
+    const body = { action, target };
+    const res = await apiCall("/admin/action", "POST", body);
     if (res.status === "success") {
         showToast(res.message, "success");
         refreshAdminStats();
