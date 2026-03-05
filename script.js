@@ -239,7 +239,7 @@ async function refreshUserList() {
 
         item.appendChild(header);
         item.appendChild(details);
-        container.appendChild(item);
+        userListEl.appendChild(item);
     }
 }
 

@@ -122,6 +122,11 @@ h1 {
     text-shadow: 0 0 20px var(--primary-glow);
 }
 
+h1.brand {
+    color: var(--primary);
+    /* Royale blue #002366 */
+}
+
 p {
     color: var(--text-muted);
     margin-bottom: 2rem;
