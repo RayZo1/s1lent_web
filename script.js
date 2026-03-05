@@ -166,9 +166,13 @@ async function refreshUserList() {
                 }
                 const div = document.createElement("div");
                 div.className = "license-row";
+                const idEscaped = String(row.id).replace(/'/g, "\\'").replace(/"/g, "&quot;");
                 div.innerHTML = `
                     <span class="code-text">${row.license}</span>
-                    <span class="code-text">Expires: ${expiryStr}</span>
+                    <span class="license-row-right">
+                        <span class="code-text">Expires: ${expiryStr}</span>
+                        <button type="button" class="btn danger-btn sm-btn" onclick="deleteAvailableLicense('${idEscaped}')">Delete</button>
+                    </span>
                 `;
                 availableListEl.appendChild(div);
             }
@@ -245,6 +249,10 @@ async function refreshUserList() {
 
 async function quickAction(action, target) {
     await takeAction(action, target);
+}
+
+async function deleteAvailableLicense(recordId) {
+    await takeAction('wipe', recordId);
 }
 
 function filterUsers() {
