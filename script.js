@@ -1,5 +1,29 @@
 const API_URL = "https://xx.e.jrnm.app";
 
+// --- Custom Toast Notifications ---
+function showToast(msg, type = "info", duration = 4000) {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const icons = { success: "✓", error: "✕", warning: "⚠", info: "◆" };
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `<span class="toast-icon">${icons[type] || "◆"}</span><span class="toast-msg">${msg}</span>`;
+
+    toast.onclick = () => dismiss();
+    container.appendChild(toast);
+
+    const dismiss = () => {
+        toast.classList.add('toast-hide');
+        setTimeout(() => toast.remove(), 350);
+    };
+    setTimeout(dismiss, duration);
+}
+
 // --- Background Effects ---
 function initParticles() {
     const container = document.getElementById('particles');
@@ -46,14 +70,14 @@ async function apiCall(endpoint, method = "GET", body = null) {
 // --- Login Page (index.html) ---
 async function login() {
     const key = document.getElementById('licenseKey').value.trim();
-    if (!key) return alert("Please enter a license key.");
+    if (!key) return showToast("Please enter a license key.", "warning");
 
     const res = await apiCall("/web/login", "POST", { key });
     if (res.status === "success") {
         setToken(res.token);
         window.location.href = res.role === "admin" ? "admin.html" : "panel.html";
     } else {
-        alert(res.message || "Invalid license key.");
+        showToast(res.message || "Invalid license key.", "error");
     }
 }
 
@@ -85,7 +109,7 @@ async function downloadProduct() {
     if (res.status === "success" && res.url) {
         window.location.href = res.url;
     } else {
-        alert(`Download failed: ${res.status}`);
+        showToast(`Download failed: ${res.status}`, "error");
     }
 }
 
@@ -214,36 +238,34 @@ async function generateLicense() {
 
     const res = await apiCall("/admin/create_license", "POST", body);
     if (res.status === "success") {
-        alert(`Created License:\n\n${res.license}\n\nExpiry: ${res.expiry}`);
+        showToast(`License created!\n\n${res.license}\n\nExpires: ${res.expiry}`, "success", 7000);
         document.getElementById('genIsAdmin').checked = false;
         refreshAdminStats();
         refreshUserList();
     } else {
-        alert("Failed to generate license.");
+        showToast("Failed to generate license.", "error");
     }
 }
 
 async function takeAction(action) {
     const target = document.getElementById('manageTarget').value.trim();
-    if (!target) return alert("Provide a HWID or Discord ID.");
+    if (!target) return showToast("Provide a HWID or Discord ID.", "warning");
 
     let endpoint = "/admin/action";
     let body = { action, target };
 
     // Using the previously defined unban endpoint
     if (action === "unban") {
-        endpoint = "/admin/action"; // Note: Python API uses /admin/action for unban? Wait, let me check the python code.
-        // Actually, python API uses `action = "unban"` or was it a separate endpoint?
-        // Let's pass it properly.
+        endpoint = "/admin/action";
     }
 
     const res = await apiCall(endpoint, "POST", body);
     if (res.status === "success") {
-        alert(res.message);
+        showToast(res.message, "success");
         refreshAdminStats();
         refreshUserList();
     } else {
-        alert(res.message || "Action failed.");
+        showToast(res.message || "Action failed.", "error");
     }
 }
 
@@ -251,11 +273,11 @@ async function updateProduct() {
     const version = document.getElementById('updateVersion').value.trim();
     const url = document.getElementById('updateUrl').value.trim();
 
-    if (!version && !url) return alert("Provide version or URL to update.");
+    if (!version && !url) return showToast("Provide version or URL to update.", "warning");
 
     const res = await apiCall("/admin/publish", "POST", { version, url });
     if (res.status === "success") {
-        alert("Product updated successfully.");
+        showToast("Product updated successfully.", "success");
         refreshAdminStats();
     }
 }
