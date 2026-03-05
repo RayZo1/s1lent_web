@@ -205,11 +205,19 @@ function filterUsers() {
 async function generateLicense() {
     const days = document.getElementById('genDays').value || 30;
     const prefix = document.getElementById('genPrefix').value || "UG";
+    const isAdmin = document.getElementById('genIsAdmin').checked;
 
-    const res = await apiCall("/admin/create_license", "POST", { days, prefix });
+    let body = { days, prefix };
+    if (isAdmin) {
+        body.target_id = "admin";
+    }
+
+    const res = await apiCall("/admin/create_license", "POST", body);
     if (res.status === "success") {
         alert(`Created License:\n\n${res.license}\n\nExpiry: ${res.expiry}`);
+        document.getElementById('genIsAdmin').checked = false;
         refreshAdminStats();
+        refreshUserList();
     } else {
         alert("Failed to generate license.");
     }

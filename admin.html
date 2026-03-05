@@ -46,6 +46,11 @@
                 <div class="input-group">
                     <input type="text" id="genPrefix" placeholder="Custom Prefix (Optional)" value="UG">
                 </div>
+                <div class="input-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem;">
+                    <input type="checkbox" id="genIsAdmin" style="width: auto; margin: 0;">
+                    <label for="genIsAdmin" style="color: var(--text-muted); cursor: pointer; user-select: none;">Set as
+                        Main Admin Key</label>
+                </div>
                 <button class="btn primary-btn full-width" onclick="generateLicense()">Generate Key</button>
             </div>
 
