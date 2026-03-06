@@ -91,7 +91,6 @@ async function initUserPanel() {
 
     document.getElementById('contentBox').style.display = "block";
 
-    // YYYYMMDD to Date String
     let expiryStr = res.expiry;
     if (expiryStr && expiryStr.length === 8) {
         expiryStr = `${expiryStr.substring(0, 4)}-${expiryStr.substring(4, 6)}-${expiryStr.substring(6, 8)}`;
@@ -197,7 +196,6 @@ async function refreshUserList() {
         let item = document.createElement("div");
         item.className = "user-item";
 
-        // Header
         let header = document.createElement("div");
         header.className = "user-header";
         header.innerHTML = `
@@ -205,7 +203,6 @@ async function refreshUserList() {
             <span class="status ${displayStatus}">${displayStatus}</span>
         `;
 
-        // Details
         let details = document.createElement("div");
         details.className = "user-details";
         details.innerHTML = `
@@ -227,15 +224,31 @@ async function refreshUserList() {
                     <span class="code-text">${data.expiry}</span>
                 </div>
             </div>
-            <div class="btn-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-                <button class="btn warning-btn sm-btn" onclick="quickAction('reset', '${esc(id)}')">Reset HWID</button>
-                <button class="btn danger-btn sm-btn" onclick="quickAction('wipe', '${esc(id)}')">Wipe</button>
-                <button class="btn primary-btn sm-btn" onclick="takeLicense('${esc(id)}')">Take license</button>
-                <button class="btn success-btn sm-btn" onclick="giveLicense('${esc(id)}')" style="background: var(--success); color: white;">Give license</button>
-                <button class="btn danger-btn sm-btn outline" onclick="quickAction('suspend', '${esc(id)}')">Suspend</button>
-                <button class="btn primary-btn sm-btn outline" onclick="quickAction('unsuspend', '${esc(id)}')">Unsuspend</button>
-                <button class="btn danger-btn sm-btn" onclick="quickAction('ban', '${esc(data.hwid)}')">Ban HWID</button>
-                <button class="btn success-btn sm-btn" onclick="quickAction('unban', '${esc(data.hwid)}')" style="background: var(--success); color: white;">Unban HWID</button>
+
+            <div class="action-section">
+                <div class="action-group">
+                    <span class="action-group-label">License</span>
+                    <div class="action-row">
+                        <button class="btn action-btn sm-btn" onclick="giveLicense('${esc(id)}')">Give License</button>
+                        <button class="btn action-btn sm-btn" onclick="takeLicense('${esc(id)}')">Take License</button>
+                    </div>
+                </div>
+                <div class="action-group">
+                    <span class="action-group-label">Account</span>
+                    <div class="action-row">
+                        <button class="btn action-btn sm-btn" onclick="quickAction('reset', '${esc(id)}')">Reset HWID</button>
+                        <button class="btn action-btn sm-btn" onclick="quickAction('suspend', '${esc(id)}')">Suspend</button>
+                        <button class="btn action-btn sm-btn" onclick="quickAction('unsuspend', '${esc(id)}')">Unsuspend</button>
+                    </div>
+                </div>
+                <div class="action-group">
+                    <span class="action-group-label">Danger</span>
+                    <div class="action-row">
+                        <button class="btn wipe-btn sm-btn" onclick="quickAction('wipe', '${esc(id)}')">Wipe</button>
+                        <button class="btn ban-btn sm-btn" onclick="quickAction('ban', '${esc(data.hwid)}')">Ban HWID</button>
+                        <button class="btn action-btn sm-btn" onclick="quickAction('unban', '${esc(data.hwid)}')">Unban HWID</button>
+                    </div>
+                </div>
             </div>
         `;
 
