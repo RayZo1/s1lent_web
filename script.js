@@ -24,26 +24,6 @@ function showToast(msg, type = "info", duration = 4000) {
     setTimeout(dismiss, duration);
 }
 
-// --- Background Effects ---
-function initParticles() {
-    const container = document.getElementById('particles');
-    if (!container) return;
-
-    for (let i = 0; i < 30; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        const size = Math.random() * 100 + 20;
-        p.style.width = `${size}px`;
-        p.style.height = `${size}px`;
-        p.style.left = `${Math.random() * 100}vw`;
-        p.style.top = `${Math.random() * 100}vh`;
-        p.style.animationDuration = `${Math.random() * 20 + 10}s`;
-        p.style.animationDelay = `${Math.random() * 5}s`;
-        container.appendChild(p);
-    }
-}
-window.addEventListener('DOMContentLoaded', initParticles);
-
 // --- Auth Utilities ---
 function getToken() { return sessionStorage.getItem('ug_token'); }
 function setToken(t) { sessionStorage.setItem('ug_token', t); }
@@ -82,7 +62,6 @@ async function login() {
 }
 
 // --- User Panel (panel.html) ---
-let downloadUrl = "";
 async function initUserPanel() {
     if (!getToken()) return logout();
 
@@ -91,24 +70,33 @@ async function initUserPanel() {
 
     document.getElementById('contentBox').style.display = "block";
 
-    let expiryStr = res.expiry;
+    let expiryStr = res.expiry || "Never";
     if (expiryStr && expiryStr.length === 8) {
         expiryStr = `${expiryStr.substring(0, 4)}-${expiryStr.substring(4, 6)}-${expiryStr.substring(6, 8)}`;
     }
 
-    document.getElementById('u_status').textContent = res.status_code.toUpperCase();
-    document.getElementById('u_expiry').textContent = expiryStr;
-    document.getElementById('u_hwid').textContent = res.hwid;
-    document.getElementById('u_discord').textContent = res.discord_id;
-    downloadUrl = res.download_url;
+    if (document.getElementById('p_license')) document.getElementById('p_license').textContent = res.license || "----";
+    if (document.getElementById('p_expiry')) document.getElementById('p_expiry').textContent = expiryStr;
+    if (document.getElementById('p_hwid')) document.getElementById('p_hwid').textContent = res.hwid || "Not Linked";
+    if (document.getElementById('p_discord')) document.getElementById('p_discord').textContent = res.discord_id || "Not Linked";
 }
 
-async function downloadProduct() {
+async function downloadClient() {
     const res = await apiCall("/download/validate", "POST", { key: getToken() });
     if (res.status === "success" && res.url) {
         window.location.href = res.url;
     } else {
-        showToast(`Download failed: ${res.status}`, "error");
+        showToast(`Download failed: ${res.message || "Unknown error"}`, "error");
+    }
+}
+
+async function resetHWID() {
+    const res = await apiCall("/web/reset_hwid", "POST");
+    if (res.status === "success") {
+        showToast("HWID reset successful.", "success");
+        initUserPanel();
+    } else {
+        showToast(res.message || "Failed to reset HWID.", "error");
     }
 }
 
@@ -128,35 +116,33 @@ function switchAdminTab(tab) {
     document.querySelectorAll('.list-tabs .tab-btn').forEach(b => {
         b.classList.toggle('active', b.getAttribute('data-tab') === tab);
     });
-    document.querySelectorAll('.list-card .tab-pane').forEach(p => {
-        p.classList.toggle('active', p.id === 'tab-' + tab);
+    document.querySelectorAll('.tab-pane').forEach(p => {
         p.style.display = p.id === 'tab-' + tab ? 'block' : 'none';
+        p.classList.toggle('active', p.id === 'tab-' + tab);
     });
 }
 
 async function refreshAdminStats() {
     const res = await apiCall("/admin/stats");
     if (res.status === "success") {
-        document.getElementById('a_users').textContent = res.total_users;
-        const aAvailable = document.getElementById('a_available');
-        if (aAvailable) aAvailable.textContent = res.available_licenses ?? 0;
-        document.getElementById('a_bans').textContent = res.active_bans;
-        document.getElementById('a_version').textContent = res.version;
+        if (document.getElementById('a_users')) document.getElementById('a_users').textContent = res.total_users;
+        if (document.getElementById('a_available')) document.getElementById('a_available').textContent = res.available_licenses ?? 0;
+        if (document.getElementById('a_bans')) document.getElementById('a_bans').textContent = res.active_bans;
+        if (document.getElementById('a_version')) document.getElementById('a_version').textContent = res.version;
     }
 }
 
 async function refreshUserList() {
     const res = await apiCall("/admin/users");
-    const userListEl = document.getElementById('adminUserList');
-    const availableListEl = document.getElementById('adminAvailableList');
     if (res.status !== "success") return;
 
-    // Available Licenses tab
+    // Keys tab
+    const availableListEl = document.getElementById('adminAvailableList');
     if (availableListEl) {
         availableListEl.innerHTML = "";
         const available = res.available_licenses || [];
         if (available.length === 0) {
-            availableListEl.innerHTML = "<p>No available licenses. Generate some in the Create section above.</p>";
+            availableListEl.innerHTML = "<p style='color: var(--text-secondary); font-size: 0.9rem;'>No available keys. Generate some in the Create section above.</p>";
         } else {
             for (const row of available) {
                 let expiryStr = row.expiry || "";
@@ -164,101 +150,59 @@ async function refreshUserList() {
                     expiryStr = `${expiryStr.substring(0, 4)}-${expiryStr.substring(4, 6)}-${expiryStr.substring(6, 8)}`;
                 }
                 const div = document.createElement("div");
-                div.className = "license-row";
-                const idEscaped = String(row.id).replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                div.className = "user-item";
                 div.innerHTML = `
-                    <span class="code-text">${row.license}</span>
-                    <span class="license-row-right">
-                        <span class="code-text">Expires: ${expiryStr}</span>
-                        <button type="button" class="btn danger-btn sm-btn" onclick="deleteAvailableLicense('${idEscaped}')">Delete</button>
-                    </span>
+                    <div class="user-info">
+                        <span class="user-main" style="font-family: monospace;">${row.license}</span>
+                        <span class="user-sub">Expires: ${expiryStr}</span>
+                    </div>
+                    <button type="button" class="btn-primary btn-sm btn-danger" onclick="deleteAvailableLicense('${String(row.id).replace(/'/g, "\\'")}')" style="width: auto; margin: 0;">Delete</button>
                 `;
                 availableListEl.appendChild(div);
             }
         }
     }
 
-    // Users tab
-    if (!userListEl) return;
-    userListEl.innerHTML = "";
-    const users = res.users || {};
-    const banned = res.banned || [];
+    // Userbase tab
+    const userListEl = document.getElementById('adminUserList');
+    if (userListEl) {
+        userListEl.innerHTML = "";
+        const users = res.users || {};
+        const banned = res.banned || [];
 
-    if (Object.keys(users).length === 0) {
-        userListEl.innerHTML = "<p>No users yet. Once someone links and uses a license, they appear here.</p>";
-        return;
-    }
-
-    for (const [id, data] of Object.entries(users)) {
-        let isBanned = banned.includes(data.hwid);
-        let displayStatus = isBanned ? "banned" : data.status;
-
-        let item = document.createElement("div");
-        item.className = "user-item";
-
-        let header = document.createElement("div");
-        header.className = "user-header";
-        header.innerHTML = `
-            <span class="username">${data.username || "Unknown"}</span>
-            <span class="status ${displayStatus}">${displayStatus}</span>
-        `;
-
-        let details = document.createElement("div");
-        details.className = "user-details";
-        details.innerHTML = `
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="label">Discord ID</span>
-                    <span class="code-text">${id}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">HWID</span>
-                    <span class="code-text" style="font-size: 0.8rem;">${data.hwid}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">License Key</span>
-                    <span class="code-text">${data.license || "None"}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">Expiry</span>
-                    <span class="code-text">${data.expiry}</span>
-                </div>
-            </div>
-
-            <div class="action-section">
-                <div class="action-group">
-                    <span class="action-group-label">License</span>
-                    <div class="action-row">
-                        <button class="btn action-btn sm-btn" onclick="giveLicense('${esc(id)}')">Give License</button>
-                        <button class="btn action-btn sm-btn" onclick="takeLicense('${esc(id)}')">Take License</button>
+        if (Object.keys(users).length === 0) {
+            userListEl.innerHTML = "<p style='color: var(--text-secondary); font-size: 0.9rem;'>No active users recorded.</p>";
+        } else {
+            for (const [id, data] of Object.entries(users)) {
+                let isBanned = banned.includes(data.hwid);
+                let statusBadge = isBanned ? "Banned" : (data.status || "Active");
+                
+                const item = document.createElement("div");
+                item.className = "user-item";
+                item.style.flexDirection = "column";
+                item.style.alignItems = "stretch";
+                item.style.gap = "1rem";
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="user-info">
+                            <span class="user-main">${data.username || "Unknown Entity"}</span>
+                            <span class="user-sub" style="color: ${isBanned ? 'var(--danger)' : 'var(--text-secondary)'}">${statusBadge}</span>
+                        </div>
+                        <span class="user-sub">${id}</span>
                     </div>
-                </div>
-                <div class="action-group">
-                    <span class="action-group-label">Account</span>
-                    <div class="action-row">
-                        <button class="btn action-btn sm-btn" onclick="quickAction('reset', '${esc(id)}')">Reset HWID</button>
-                        <button class="btn action-btn sm-btn" onclick="quickAction('suspend', '${esc(id)}')">Suspend</button>
-                        <button class="btn action-btn sm-btn" onclick="quickAction('unsuspend', '${esc(id)}')">Unsuspend</button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
+                        <div class="user-info"><span class="user-sub">HWID</span><span style="font-family: monospace; font-size: 0.75rem;">${data.hwid.substring(0, 16)}...</span></div>
+                        <div class="user-info"><span class="user-sub">License</span><span style="font-family: monospace;">${data.license || "None"}</span></div>
                     </div>
-                </div>
-                <div class="action-group">
-                    <span class="action-group-label">Danger</span>
-                    <div class="action-row">
-                        <button class="btn wipe-btn sm-btn" onclick="quickAction('wipe', '${esc(id)}')">Wipe</button>
-                        <button class="btn ban-btn sm-btn" onclick="quickAction('ban', '${esc(data.hwid)}')">Ban HWID</button>
-                        <button class="btn action-btn sm-btn" onclick="quickAction('unban', '${esc(data.hwid)}')">Unban HWID</button>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn-primary btn-sm" onclick="giveLicense('${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px;">Key</button>
+                        <button class="btn-primary btn-sm" onclick="quickAction('reset', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px;">Reset</button>
+                        <button class="btn-primary btn-sm btn-danger" onclick="quickAction('ban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px;">Ban</button>
                     </div>
-                </div>
-            </div>
-        `;
-
-        header.onclick = () => {
-            details.classList.toggle("show");
-        };
-
-        item.appendChild(header);
-        item.appendChild(details);
-        userListEl.appendChild(item);
+                `;
+                userListEl.appendChild(item);
+            }
+        }
     }
 }
 
@@ -270,108 +214,66 @@ async function quickAction(action, target) {
     await takeAction(action, target);
 }
 
-async function takeLicense(userId) {
-    await takeAction("take_license", userId);
-}
-
 let _giveLicenseUserId = null;
-
 function openGiveLicenseModal(userId) {
     _giveLicenseUserId = userId;
     const modal = document.getElementById("give-license-modal");
-    const daysEl = document.getElementById("giveLicenseDays");
-    const prefixEl = document.getElementById("giveLicensePrefix");
-    if (daysEl) daysEl.value = "30";
-    if (prefixEl) prefixEl.value = "UG";
     modal.classList.add("show");
-    modal.setAttribute("aria-hidden", "false");
+    modal.style.display = "flex";
 }
-
 function closeGiveLicenseModal() {
     _giveLicenseUserId = null;
     const modal = document.getElementById("give-license-modal");
     modal.classList.remove("show");
-    modal.setAttribute("aria-hidden", "true");
+    modal.style.display = "none";
 }
-
 async function confirmGiveLicense() {
     if (!_giveLicenseUserId) return closeGiveLicenseModal();
-    const daysEl = document.getElementById("giveLicenseDays");
-    const prefixEl = document.getElementById("giveLicensePrefix");
-    const days = parseInt(daysEl?.value?.trim() || "30", 10);
-    if (isNaN(days) || days < 1) {
-        showToast("Enter a valid number of days.", "warning");
-        return;
-    }
-    const prefix = prefixEl?.value?.trim() || "UG";
+    const days = parseInt(document.getElementById("giveLicenseDays")?.value || "30", 10);
+    const prefix = document.getElementById("giveLicensePrefix")?.value || "UG";
     closeGiveLicenseModal();
     await takeAction("give_license", _giveLicenseUserId, { days, prefix });
 }
-
-async function giveLicense(userId) {
-    openGiveLicenseModal(userId);
-}
-
-async function deleteAvailableLicense(recordId) {
-    await takeAction("wipe", recordId);
-}
+function giveLicense(userId) { openGiveLicenseModal(userId); }
+function deleteAvailableLicense(recordId) { takeAction("wipe", recordId); }
 
 function filterUsers() {
     const input = document.getElementById('userSearch').value.toLowerCase();
-    const list = document.getElementById('adminUserList');
-    const items = list.getElementsByClassName('user-item');
-
-    for (let i = 0; i < items.length; i++) {
-        const textContent = items[i].textContent.toLowerCase();
-        if (textContent.includes(input)) {
-            items[i].style.display = "";
-        } else {
-            items[i].style.display = "none";
-        }
-    }
+    const items = document.querySelectorAll('#adminUserList .user-item');
+    items.forEach(item => {
+        item.style.display = item.textContent.toLowerCase().includes(input) ? "flex" : "none";
+    });
 }
 
 async function generateLicense() {
     const days = document.getElementById('genDays').value || 30;
     const prefix = document.getElementById('genPrefix').value || "UG";
-    const body = { days, prefix };
-
-    const res = await apiCall("/admin/create_license", "POST", body);
+    const res = await apiCall("/admin/create_license", "POST", { days, prefix });
     if (res.status === "success") {
-        showToast(`License created!\n\n${res.license}\n\nExpires: ${res.expiry}`, "success", 7000);
+        showToast("License generated.", "success");
         refreshAdminStats();
         refreshUserList();
-    } else {
-        showToast("Failed to generate license.", "error");
-    }
+    } else showToast(res.message || "Failure.", "error");
 }
 
-async function takeAction(action, targetFromButton, extra) {
-    const target = targetFromButton != null ? targetFromButton : (document.getElementById("manageTarget")?.value?.trim() || "");
-    if (!target) return showToast("Provide a HWID or Discord ID.", "warning");
-
+async function takeAction(action, target, extra) {
     const body = { action, target };
-    if (extra && typeof extra === "object") Object.assign(body, extra);
+    if (extra) Object.assign(body, extra);
     const res = await apiCall("/admin/action", "POST", body);
     if (res.status === "success") {
-        if (res.license) showToast(`${res.message}\n\nKey: ${res.license}\nExpires: ${res.expiry}`, "success", 6000);
-        else showToast(res.message, "success");
+        showToast(res.message || "Success", "success");
         refreshAdminStats();
         refreshUserList();
-    } else {
-        showToast(res.message || "Action failed.", "error");
-    }
+    } else showToast(res.message || "Error", "error");
 }
 
 async function updateProduct() {
     const version = document.getElementById('updateVersion').value.trim();
     const url = document.getElementById('updateUrl').value.trim();
-
-    if (!version && !url) return showToast("Provide version or URL to update.", "warning");
-
+    if (!version && !url) return showToast("Empty fields.", "warning");
     const res = await apiCall("/admin/publish", "POST", { version, url });
     if (res.status === "success") {
-        showToast("Product updated successfully.", "success");
+        showToast("Published.", "success");
         refreshAdminStats();
     }
 }

@@ -4,115 +4,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Where shit goes down.</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap">
+    <title>Klient &middot; Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div id="toast-container"></div>
-    <div class="mesh-bg">
-        <div class="mesh-blob blob-1"></div>
-        <div class="mesh-blob blob-2"></div>
-    </div>
+    <div class="background-mesh"></div>
 
     <div id="give-license-modal" class="modal-overlay" aria-hidden="true" onclick="closeGiveLicenseModal()">
         <div class="modal-box" onclick="event.stopPropagation()">
             <h3 class="modal-title">Give license</h3>
             <p class="modal-desc">Create a new license and assign it to this user.</p>
             <div class="input-group">
-                <label for="giveLicenseDays" class="modal-label">Expiry (days)</label>
-                <input type="number" id="giveLicenseDays" placeholder="e.g. 30" value="30" min="1">
+                <input type="number" id="giveLicenseDays" class="input-field" placeholder="Expiry (days)" value="30" min="1">
             </div>
             <div class="input-group">
-                <label for="giveLicensePrefix" class="modal-label">Prefix (optional)</label>
-                <input type="text" id="giveLicensePrefix" placeholder="UG" value="UG">
+                <input type="text" id="giveLicensePrefix" class="input-field" placeholder="Prefix (optional)" value="UG">
             </div>
-            <div class="modal-actions">
-                <button type="button" class="btn danger-btn" onclick="closeGiveLicenseModal()">Cancel</button>
-                <button type="button" class="btn primary-btn" onclick="confirmGiveLicense()">Give license</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="container admin-container" style="display: none;" id="contentBox">
-        <div class="header">
-            <div class="title-group">
-                <img src="../Klient.png" width="32" style="border-radius:8px;" alt="Logo">
-                <h1 class="brand">Klient Panel</h1>
-            </div>
-            <button class="btn danger-btn sm-btn" onclick="logout()">Logout</button>
-        </div>
-
-        <div class="admin-grid">
-
-            <div class="card stats-card">
-                <h3>Stats</h3>
-                <div class="stats-row">
-                    <div class="stat-box">
-                        <span class="stat-value" id="a_users">0</span>
-                        <span class="stat-label">Total Users</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-value" id="a_available">0</span>
-                        <span class="stat-label">Available Licenses</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-value" id="a_bans">0</span>
-                        <span class="stat-label">Active Bans</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-value" id="a_version">1.0</span>
-                        <span class="stat-label">Latest Version</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card action-card">
-                <h3>Create</h3>
-                <div class="input-group">
-                    <input type="number" id="genDays" placeholder="License Duration (Days)" value="30">
-                </div>
-                <div class="input-group">
-                    <input type="text" id="genPrefix" placeholder="Custom Prefix (Optional)" value="UG">
-                </div>
-                <button class="btn primary-btn full-width" onclick="generateLicense()">Generate Key</button>
-            </div>
-
-            <div class="card action-card">
-                <h3>Update</h3>
-                <div class="input-group">
-                    <input type="text" id="updateVersion" placeholder="New Version (e.g. 1.2)">
-                </div>
-                <div class="input-group">
-                    <input type="text" id="updateUrl" placeholder="New Download URL">
-                </div>
-                <button class="btn primary-btn full-width" onclick="updateProduct()">Publish Update</button>
-            </div>
-
-        </div>
-
-        <div class="card full-width list-card">
-            <div class="list-tabs">
-                <button type="button" class="tab-btn active" data-tab="available" onclick="switchAdminTab('available')">Available Licenses</button>
-                <button type="button" class="tab-btn" data-tab="users" onclick="switchAdminTab('users')">Users</button>
-            </div>
-            <div id="tab-available" class="tab-pane active">
-                <div class="user-list" id="adminAvailableList">
-                    <p>Loading...</p>
-                </div>
-            </div>
-            <div id="tab-users" class="tab-pane" style="display: none;">
-                <div class="input-group" style="margin-bottom: 20px;">
-                    <input type="text" id="userSearch" placeholder="Search by Discord ID, Username, HWID, or License..."
-                        onkeyup="filterUsers()">
-                </div>
-                <div class="user-list" id="adminUserList">
-                    <p>Loading users...</p>
-                </div>
+            <div class="modal-actions" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="button" class="btn-primary btn-danger" onclick="closeGiveLicenseModal()" style="margin: 0;">Cancel</button>
+                <button type="button" class="btn-primary" onclick="confirmGiveLicense()" style="margin: 0;">Confirm</button>
             </div>
         </div>
     </div>
+
+    <main class="admin-wrapper">
+        <div class="content-card" style="display: none;" id="contentBox">
+            <header class="header">
+                <div class="brand-group">
+                    <span class="brand-name" style="font-weight: 700;">Klient</span>
+                    <span style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 0.5rem;">Administration</span>
+                </div>
+                <button class="btn-primary btn-sm btn-danger" onclick="logout()" style="width: auto; margin: 0;">Logout</button>
+            </header>
+
+            <div class="admin-grid">
+                <!-- Stats -->
+                <div class="card stats-card full-width">
+                    <h3>System Stats</h3>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <span class="stat-value" id="a_users">0</span>
+                            <span class="stat-label">Users</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-value" id="a_available">0</span>
+                            <span class="stat-label">Unused</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-value" id="a_bans">0</span>
+                            <span class="stat-label">Bans</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-value" id="a_version">1.0</span>
+                            <span class="stat-label">Version</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create License -->
+                <div class="card">
+                    <h3>Create Key</h3>
+                    <div class="input-group">
+                        <input type="number" id="genDays" class="input-field" placeholder="Duration (Days)" value="30">
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="genPrefix" class="input-field" placeholder="Prefix (e.g. UG)" value="UG">
+                    </div>
+                    <button class="btn-primary" onclick="generateLicense()">Generate</button>
+                </div>
+
+                <!-- Update Product -->
+                <div class="card">
+                    <h3>Deploy Update</h3>
+                    <div class="input-group">
+                        <input type="text" id="updateVersion" class="input-field" placeholder="Version (e.g. 1.2)">
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="updateUrl" class="input-field" placeholder="Download URL">
+                    </div>
+                    <button class="btn-primary" onclick="updateProduct()">Publish</button>
+                </div>
+
+                <!-- Lists -->
+                <div class="card full-width">
+                    <div class="list-tabs">
+                        <button type="button" class="tab-btn active" data-tab="available" onclick="switchAdminTab('available')">Keys</button>
+                        <button type="button" class="tab-btn" data-tab="users" onclick="switchAdminTab('users')">Userbase</button>
+                    </div>
+                    
+                    <div id="tab-available" class="tab-pane active">
+                        <div class="user-list" id="adminAvailableList">
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Fetching active keys...</p>
+                        </div>
+                    </div>
+
+                    <div id="tab-users" class="tab-pane" style="display: none;">
+                        <div class="input-group" style="margin-bottom: 1.5rem;">
+                            <input type="text" id="userSearch" class="input-field" style="text-align: left;" placeholder="Search users, HWIDs, or keys..." onkeyup="filterUsers()">
+                        </div>
+                        <div class="user-list" id="adminUserList">
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Loading user records...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script src="script.js"></script>
     <script>
