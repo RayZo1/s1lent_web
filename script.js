@@ -176,7 +176,7 @@ async function refreshUserList() {
             for (const [id, data] of Object.entries(users)) {
                 let isBanned = banned.includes(data.hwid);
                 let statusBadge = isBanned ? "Banned" : (data.status || "Active");
-                
+
                 const item = document.createElement("div");
                 item.className = "user-item";
                 item.style.flexDirection = "column";
@@ -195,14 +195,14 @@ async function refreshUserList() {
                         <div class="user-info"><span class="user-sub">License</span><span style="font-family: monospace;">${data.license || "None"}</span></div>
                     </div>
                     <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
-                        <button class="btn-primary btn-sm" onclick="giveLicense('${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Key</button>
+                        <button class="btn-primary btn-sm" onclick="giveLicense('${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Give</button>
                         <button class="btn-primary btn-sm" onclick="takeLicense('${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Take</button>
-                        <button class="btn-primary btn-sm" onclick="quickAction('reset', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Reset</button>
-                        <button class="btn-primary btn-sm" onclick="quickAction('suspend', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Susp</button>
-                        <button class="btn-primary btn-sm" onclick="quickAction('unsuspend', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Unsusp</button>
-                        <button class="btn-primary btn-sm btn-danger" onclick="quickAction('wipe', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Wipe</button>
-                        <button class="btn-primary btn-sm btn-danger" onclick="quickAction('ban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Ban</button>
-                        <button class="btn-primary btn-sm" onclick="quickAction('unban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Unban</button>
+                        <button class="btn-primary btn-sm" onclick="takeAction('reset', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Reset</button>
+                        <button class="btn-primary btn-sm" onclick="takeAction('suspend', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Suspend</button>
+                        <button class="btn-primary btn-sm" onclick="takeAction('unsuspend', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Unsuspend</button>
+                        <button class="btn-primary btn-sm" onclick="takeAction('unban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Unban</button>
+                        <button class="btn-primary btn-sm btn-danger" onclick="takeAction('ban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Ban</button>
+                        <button class="btn-primary btn-sm btn-danger" onclick="takeAction('wipe', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Wipe</button>
                     </div>
                 `;
                 userListEl.appendChild(item);
@@ -215,27 +215,52 @@ function esc(s) {
     return String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
-async function quickAction(action, target) {
-    await takeAction(action, target);
-}
-
-async function takeLicense(userId) {
-    await takeAction("take_license", userId);
-}
-
 let _giveLicenseUserId = null;
 function openGiveLicenseModal(userId) {
     _giveLicenseUserId = userId;
     const modal = document.getElementById("give-license-modal");
-    modal.classList.add("show");
-    modal.style.display = "flex";
+    if (modal) {
+        modal.classList.add("show");
+        modal.style.display = "flex";
+    }
 }
 function closeGiveLicenseModal() {
     _giveLicenseUserId = null;
     const modal = document.getElementById("give-license-modal");
-    modal.classList.remove("show");
-    modal.style.display = "none";
+    if (modal) {
+        modal.classList.remove("show");
+        modal.style.display = "none";
+    }
 }
+
+async function takeAction(action, target, extra) {
+
+    if (!target) {
+        target = document.getElementById("manageTarget")?.value?.trim();
+    }
+    if (!target) return showToast("Target ID or HWID missing.", "warning");
+
+    const body = { action, target };
+    if (extra && typeof extra === 'object') {
+        Object.assign(body, extra);
+    }
+
+    console.log("Admin Action:", body); // Help debug in console
+
+    const res = await apiCall("/admin/action", "POST", body);
+    if (res.status === "success") {
+        if (res.license) {
+            showToast(`${res.message}\n\nKey: ${res.license}\nExpires: ${res.expiry}`, "success", 6000);
+        } else {
+            showToast(res.message || "Action successful", "success");
+        }
+        refreshAdminStats();
+        refreshUserList();
+    } else {
+        showToast(res.message || "Action failed", "error");
+    }
+}
+
 async function confirmGiveLicense() {
     if (!_giveLicenseUserId) return closeGiveLicenseModal();
     const days = parseInt(document.getElementById("giveLicenseDays")?.value || "30", 10);
@@ -243,8 +268,23 @@ async function confirmGiveLicense() {
     closeGiveLicenseModal();
     await takeAction("give_license", _giveLicenseUserId, { days, prefix });
 }
-function giveLicense(userId) { openGiveLicenseModal(userId); }
-function deleteAvailableLicense(recordId) { takeAction("wipe", recordId); }
+
+function giveLicense(uId) {
+    _giveLicenseUserId = uId;
+    openGiveLicenseModal(uId);
+}
+
+function takeLicense(uId) {
+    takeAction("take_license", uId);
+}
+
+function resetHWID(uId) {
+    takeAction("reset", uId);
+}
+
+function deleteAvailableLicense(recordId) {
+    takeAction("wipe", recordId);
+}
 
 function filterUsers() {
     const input = document.getElementById('userSearch').value.toLowerCase();
@@ -255,25 +295,14 @@ function filterUsers() {
 }
 
 async function generateLicense() {
-    const days = document.getElementById('genDays').value || 30;
+    const days = parseInt(document.getElementById('genDays').value || "30", 10);
     const prefix = document.getElementById('genPrefix').value || "UG";
     const res = await apiCall("/admin/create_license", "POST", { days, prefix });
     if (res.status === "success") {
-        showToast("License generated.", "success");
+        showToast(`Created: ${res.license}`, "success", 7000);
         refreshAdminStats();
         refreshUserList();
     } else showToast(res.message || "Failure.", "error");
-}
-
-async function takeAction(action, target, extra) {
-    const body = { action, target };
-    if (extra) Object.assign(body, extra);
-    const res = await apiCall("/admin/action", "POST", body);
-    if (res.status === "success") {
-        showToast(res.message || "Success", "success");
-        refreshAdminStats();
-        refreshUserList();
-    } else showToast(res.message || "Error", "error");
 }
 
 async function updateProduct() {
@@ -284,5 +313,5 @@ async function updateProduct() {
     if (res.status === "success") {
         showToast("Published.", "success");
         refreshAdminStats();
-    }
+    } else showToast(res.message || "Error", "error");
 }
