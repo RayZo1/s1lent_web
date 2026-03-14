@@ -177,7 +177,7 @@ async function refreshUserList() {
                 let isBanned = banned.includes(data.hwid);
                 let isSuspended = data.status === "suspended";
                 let statusBadge = isBanned ? "Banned" : (isSuspended ? "Suspended" : (data.status || "Active"));
-                
+
                 let statusClass = "user-sub";
                 if (isBanned) statusClass += " status-banned";
                 else if (isSuspended) statusClass += " status-suspended";
@@ -204,8 +204,8 @@ async function refreshUserList() {
                         <button class="btn-primary btn-sm" onclick="giveLicense('${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Give</button>
                         <button class="btn-primary btn-sm" onclick="takeLicense('${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Take</button>
                         <button class="btn-primary btn-sm" onclick="takeAction('reset', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Reset</button>
-                        <button class="btn-primary btn-sm btn-glow-yellow" onclick="takeAction('suspend', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Suspend</button>
                         <button class="btn-primary btn-sm btn-glow-green" onclick="takeAction('unsuspend', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Unsuspend</button>
+                        <button class="btn-primary btn-sm btn-glow-yellow" onclick="takeAction('suspend', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Suspend</button>
                         <button class="btn-primary btn-sm btn-glow-green" onclick="takeAction('unban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Unban</button>
                         <button class="btn-primary btn-sm btn-danger" onclick="takeAction('ban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Ban</button>
                         <button class="btn-primary btn-sm btn-danger" onclick="takeAction('wipe', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Wipe</button>
@@ -253,7 +253,7 @@ async function takeAction(action, targetOverride, extra) {
 
     console.log(`[Admin] Action: ${action}`, body);
     const res = await apiCall("/admin/action", "POST", body);
-    
+
     if (res.status === "success") {
         if (res.license) {
             showToast(`${res.message}\n\nKey: ${res.license}\nExpires: ${res.expiry}`, "success", 7000);
