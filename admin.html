@@ -11,7 +11,10 @@
 
 <body>
     <div id="toast-container"></div>
-    <div id="particles"></div>
+    <div class="mesh-bg">
+        <div class="mesh-blob blob-1"></div>
+        <div class="mesh-blob blob-2"></div>
+    </div>
 
     <div id="give-license-modal" class="modal-overlay" aria-hidden="true" onclick="closeGiveLicenseModal()">
         <div class="modal-box" onclick="event.stopPropagation()">
@@ -34,7 +37,10 @@
 
     <div class="container admin-container" style="display: none;" id="contentBox">
         <div class="header">
-            <h1 class="brand">Klient</h1>
+            <div class="title-group">
+                <img src="../Klient.png" width="32" style="border-radius:8px;" alt="Logo">
+                <h1 class="brand">Klient Panel</h1>
+            </div>
             <button class="btn danger-btn sm-btn" onclick="logout()">Logout</button>
         </div>
 
