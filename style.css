@@ -511,3 +511,43 @@ input[type="password"]:focus {
     margin-bottom: 1.5rem;
     line-height: 1.5;
 }
+
+/* Glowy Status Indicators */
+.status-active {
+    color: #4bff4b !important;
+    text-shadow: 0 0 10px rgba(75, 255, 75, 0.5);
+    font-weight: 600;
+}
+
+.status-banned {
+    color: #ff4b4b !important;
+    text-shadow: 0 0 10px rgba(255, 75, 75, 0.5);
+    font-weight: 600;
+}
+
+.status-suspended {
+    color: #ffcc00 !important;
+    text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+    font-weight: 600;
+}
+
+/* Glowy Buttons */
+.btn-glow-yellow {
+    border-color: rgba(255, 204, 0, 0.4) !important;
+}
+.btn-glow-yellow:hover {
+    background: rgba(255, 204, 0, 0.1) !important;
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.3) !important;
+    border-color: #ffcc00 !important;
+    color: #ffcc00 !important;
+}
+
+.btn-glow-green {
+    border-color: rgba(75, 255, 75, 0.4) !important;
+}
+.btn-glow-green:hover {
+    background: rgba(75, 255, 75, 0.1) !important;
+    box-shadow: 0 0 15px rgba(75, 255, 75, 0.3) !important;
+    border-color: #4bff4b !important;
+    color: #4bff4b !important;
+}
