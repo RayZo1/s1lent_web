@@ -1,36 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klient Gate</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap">
+    <title>Klient | Portal</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
     <div id="toast-container"></div>
-    <div id="particles"></div>
+    
+    <div class="background-mesh"></div>
 
-    <div class="container login-container">
-        <h1 class="brand">Klient</h1>
-        <p>Enter your license to access the panel.</p>
+    <main class="login-wrapper">
+        <div class="login-card">
+            <div class="brand-header">
+                <div class="brand-logo"></div>
+                <h1 class="brand-name">Klient</h1>
+            </div>
+            
+            <p class="subtitle">Enter your license key to access the portal.</p>
 
-        <div class="input-group">
-            <input type="text" id="licenseKey" placeholder="License" autocomplete="off">
+            <form class="login-form" id="loginForm">
+                <div class="input-group">
+                    <label for="licenseKey" class="sr-only">License Key</label>
+                    <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" required>
+                </div>
+
+                <button type="button" class="btn-primary" onclick="login()">
+                    Authenticate
+                </button>
+            </form>
+
+            <div class="support-links">
+                <a href="https://discord.gg/F6GVM27vTm" target="_blank" class="text-link">Need a license? Join our Discord</a>
+            </div>
         </div>
-
-        <button class="btn primary-btn" onclick="login()">
-            Verify >
-        </button>
-
-        <a href="https://discord.gg/F6GVM27vTm" class="discord-link" target="_blank">
-            Need a license? Join our Discord.
-        </a>
-    </div>
+    </main>
 
     <script src="script.js"></script>
 </body>
-
 </html>
