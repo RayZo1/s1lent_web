@@ -181,23 +181,28 @@ async function refreshUserList() {
                 item.className = "user-item";
                 item.style.flexDirection = "column";
                 item.style.alignItems = "stretch";
-                item.style.gap = "1rem";
+                item.style.gap = "0.75rem";
                 item.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="user-info">
                             <span class="user-main">${data.username || "Unknown Entity"}</span>
                             <span class="user-sub" style="color: ${isBanned ? 'var(--danger)' : 'var(--text-secondary)'}">${statusBadge}</span>
                         </div>
-                        <span class="user-sub">${id}</span>
+                        <span class="user-sub" style="font-size: 0.75rem;">${id}</span>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
-                        <div class="user-info"><span class="user-sub">HWID</span><span style="font-family: monospace; font-size: 0.75rem;">${data.hwid.substring(0, 16)}...</span></div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.75rem;">
+                        <div class="user-info"><span class="user-sub">HWID</span><span style="font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${data.hwid}</span></div>
                         <div class="user-info"><span class="user-sub">License</span><span style="font-family: monospace;">${data.license || "None"}</span></div>
                     </div>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button class="btn-primary btn-sm" onclick="giveLicense('${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px;">Key</button>
-                        <button class="btn-primary btn-sm" onclick="quickAction('reset', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px;">Reset</button>
-                        <button class="btn-primary btn-sm btn-danger" onclick="quickAction('ban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px;">Ban</button>
+                    <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
+                        <button class="btn-primary btn-sm" onclick="giveLicense('${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Key</button>
+                        <button class="btn-primary btn-sm" onclick="takeLicense('${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Take</button>
+                        <button class="btn-primary btn-sm" onclick="quickAction('reset', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Reset</button>
+                        <button class="btn-primary btn-sm" onclick="quickAction('suspend', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Susp</button>
+                        <button class="btn-primary btn-sm" onclick="quickAction('unsuspend', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Unsusp</button>
+                        <button class="btn-primary btn-sm btn-danger" onclick="quickAction('wipe', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Wipe</button>
+                        <button class="btn-primary btn-sm btn-danger" onclick="quickAction('ban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Ban</button>
+                        <button class="btn-primary btn-sm" onclick="quickAction('unban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Unban</button>
                     </div>
                 `;
                 userListEl.appendChild(item);
@@ -212,6 +217,10 @@ function esc(s) {
 
 async function quickAction(action, target) {
     await takeAction(action, target);
+}
+
+async function takeLicense(userId) {
+    await takeAction("take_license", userId);
 }
 
 let _giveLicenseUserId = null;
