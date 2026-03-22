@@ -1,4 +1,9 @@
-const API_URL = ""; // Relative calls since backend serves frontend
+// Auto-detect API URL. If on file://, fallback to a prompt or hardcoded dev URL
+let API_URL = ""; 
+if (window.location.protocol === "file:") {
+    API_URL = "http://localhost:8080"; // Fallback for local testing
+    console.warn("Website opened from local file. Using fallback API_URL: " + API_URL);
+}
 
 // --- Custom Toast Notifications ---
 function showToast(msg, type = "info", duration = 4000) {
