@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klient &middot; Admin</title>
+    <title>klient.fun &middot; Admin</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -18,14 +18,17 @@
             <h3 class="modal-title">Give license</h3>
             <p class="modal-desc">Create a new license and assign it to this user.</p>
             <div class="input-group">
-                <input type="number" id="giveLicenseDays" class="input-field" placeholder="Expiry (days)" value="30" min="1">
+                <input type="number" id="giveLicenseDays" class="input-field" placeholder="Expiry (days)" value="30"
+                    min="1">
             </div>
             <div class="input-group">
                 <input type="text" id="giveLicensePrefix" class="input-field" placeholder="Prefix (e.g. UG)" value="">
             </div>
             <div class="modal-actions" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button type="button" class="btn-primary btn-danger" onclick="closeGiveLicenseModal()" style="margin: 0;">Cancel</button>
-                <button type="button" class="btn-primary" onclick="confirmGiveLicense()" style="margin: 0;">Confirm</button>
+                <button type="button" class="btn-primary btn-danger" onclick="closeGiveLicenseModal()"
+                    style="margin: 0;">Cancel</button>
+                <button type="button" class="btn-primary" onclick="confirmGiveLicense()"
+                    style="margin: 0;">Confirm</button>
             </div>
         </div>
     </div>
@@ -35,13 +38,14 @@
             <header class="header">
                 <div class="brand-group">
                     <span class="brand-name" style="font-weight: 700;">Klient</span>
-                    <span style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 0.5rem;">Administration</span>
+                    <span
+                        style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 0.5rem;">Administration</span>
                 </div>
-                <button class="btn-primary btn-sm btn-danger" onclick="logout()" style="width: auto; margin: 0;">Logout</button>
+                <button class="btn-primary btn-sm btn-danger" onclick="logout()"
+                    style="width: auto; margin: 0;">Logout</button>
             </header>
 
             <div class="admin-grid">
-                <!-- Stats -->
                 <div class="card stats-card full-width">
                     <h3>System Stats</h3>
                     <div class="stats-row">
@@ -64,7 +68,6 @@
                     </div>
                 </div>
 
-                <!-- Create License -->
                 <div class="card">
                     <h3>Create Key</h3>
                     <div class="input-group">
@@ -73,18 +76,19 @@
                     <div class="input-group">
                         <input type="text" id="genPrefix" class="input-field" placeholder="Prefix (e.g. UG)" value="">
                     </div>
-                    <button class="btn-primary" onclick="generateLicense()">Generate</button>
+                    <button class="btn-primary" onclick="generateLicense()">Create</button>
                 </div>
 
-
-                <!-- Lists -->
                 <div class="card full-width">
                     <div class="list-tabs">
-                        <button type="button" class="tab-btn active" data-tab="available" onclick="switchAdminTab('available')">Keys</button>
-                        <button type="button" class="tab-btn" data-tab="users" onclick="switchAdminTab('users')">Userbase</button>
-                        <button type="button" class="tab-btn" data-tab="updates" onclick="switchAdminTab('updates')">Script Updates</button>
+                        <button type="button" class="tab-btn active" data-tab="available"
+                            onclick="switchAdminTab('available')">Keys</button>
+                        <button type="button" class="tab-btn" data-tab="users"
+                            onclick="switchAdminTab('users')">Userbase</button>
+                        <button type="button" class="tab-btn" data-tab="updates"
+                            onclick="switchAdminTab('updates')">Script Updates</button>
                     </div>
-                    
+
                     <div id="tab-available" class="tab-pane active">
                         <div class="user-list" id="adminAvailableList">
                             <p style="color: var(--text-secondary); font-size: 0.9rem;">Fetching active keys...</p>
@@ -93,7 +97,8 @@
 
                     <div id="tab-users" class="tab-pane" style="display: none;">
                         <div class="input-group" style="margin-bottom: 1.5rem;">
-                            <input type="text" id="userSearch" class="input-field" style="text-align: left;" placeholder="Search users, HWIDs, or keys..." onkeyup="filterUsers()">
+                            <input type="text" id="userSearch" class="input-field" style="text-align: left;"
+                                placeholder="Search users, HWIDs, or keys..." onkeyup="filterUsers()">
                         </div>
                         <div class="user-list" id="adminUserList">
                             <p style="color: var(--text-secondary); font-size: 0.9rem;">Loading user records...</p>
@@ -101,20 +106,28 @@
                     </div>
 
                     <div id="tab-updates" class="tab-pane" style="display: none;">
-                        <div style="max-width: 500px; margin: 1rem auto; display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div
+                            style="max-width: 500px; margin: 1rem auto; display: flex; flex-direction: column; gap: 1.5rem;">
                             <div class="card" style="border-top: 3px solid var(--royal-blue); padding: 2rem;">
                                 <h3 style="margin-bottom: 0.5rem;">Script Version Control</h3>
-                                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 2rem;">Update the remote configuration for all active clients.</p>
-                                
+                                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 2rem;">Update
+                                    the remote configuration for all active clients.</p>
+
                                 <div class="input-group">
-                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">New Version Label</label>
-                                    <input type="text" id="updateVersion" class="input-field" placeholder="e.g. 1.2, 2.0-beta" style="text-align: left;">
+                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">New Version
+                                        Label</label>
+                                    <input type="text" id="updateVersion" class="input-field"
+                                        placeholder="e.g. 1.2, 2.0-beta" style="text-align: left;">
                                 </div>
                                 <div class="input-group" style="margin-top: 1rem;">
-                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">Download / CDN URL</label>
-                                    <input type="text" id="updateUrl" class="input-field" placeholder="https://cdn.example.com/script.rar" style="text-align: left;">
+                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">Download /
+                                        CDN URL</label>
+                                    <input type="text" id="updateUrl" class="input-field"
+                                        placeholder="https://cdn.example.com/script.rar" style="text-align: left;">
                                 </div>
-                                <button class="btn-primary" onclick="updateProduct()" style="background: var(--royal-blue); color: white; margin-top: 1.5rem; height: 50px;">Deploy to Fleet</button>
+                                <button class="btn-primary" onclick="updateProduct()"
+                                    style="background: var(--royal-blue); color: white; margin-top: 1.5rem; height: 50px;">Deploy
+                                    to Fleet</button>
                             </div>
                         </div>
                     </div>
