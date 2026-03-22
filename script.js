@@ -1,4 +1,4 @@
-const API_URL = "https://xx.e.jrnm.app";
+const API_URL = ""; // Relative calls since backend serves frontend
 
 // --- Custom Toast Notifications ---
 function showToast(msg, type = "info", duration = 4000) {
@@ -25,9 +25,9 @@ function showToast(msg, type = "info", duration = 4000) {
 }
 
 // --- Auth Utilities ---
-function getToken() { return sessionStorage.getItem('ug_token'); }
-function setToken(t) { sessionStorage.setItem('ug_token', t); }
-function logout() { sessionStorage.removeItem('ug_token'); window.location.href = 'index.html'; }
+function getToken() { return sessionStorage.getItem('klient_token'); }
+function setToken(t) { sessionStorage.setItem('klient_token', t); }
+function logout() { sessionStorage.removeItem('klient_token'); window.location.href = 'index.html'; }
 
 // --- API Calls ---
 async function apiCall(endpoint, method = "GET", body = null) {
@@ -171,7 +171,7 @@ async function downloadClient() {
     }
 }
 
-async function resetHWID() {
+async function resetHWID_User() {
     const res = await apiCall("/web/reset_hwid", "POST");
     if (res.status === "success") {
         showToast("HWID reset successful.", "success");
@@ -417,10 +417,39 @@ async function generateLicense() {
 async function updateProduct() {
     const version = document.getElementById('updateVersion').value.trim();
     const url = document.getElementById('updateUrl').value.trim();
-    if (!version && !url) return showToast("Empty fields.", "warning");
+    if (!version) return showToast("Version tag is required.", "warning");
     const res = await apiCall("/admin/publish", "POST", { version, url });
     if (res.status === "success") {
-        showToast("Published.", "success");
+        showToast("Configuration deployed!", "success");
         refreshAdminStats();
     } else showToast(res.message || "Error", "error");
+}
+
+async function uploadUpdate() {
+    const fileInput = document.getElementById('updateFile');
+    if (!fileInput.files.length) return showToast("Select a file first.", "warning");
+
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = getToken();
+    showToast("Uploading...", "info", 2000);
+    
+    try {
+        const response = await fetch(`${API_URL}/admin/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+        const res = await response.json();
+        if (res.status === "success") {
+            document.getElementById('updateUrl').value = res.url;
+            showToast("Success! URL mapped.", "success");
+        } else {
+            showToast(res.message || "Upload failed.", "error");
+        }
+    } catch (e) {
+        showToast("Connection error.", "error");
+    }
 }

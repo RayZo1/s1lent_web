@@ -37,7 +37,7 @@
         <div class="content-card" style="display: none;" id="contentBox">
             <header class="header">
                 <div class="brand-group">
-                    <span class="brand-name" style="font-weight: 700;">Klient</span>
+                    <span class="brand-name" style="font-weight: 700;">klient.fun</span>
                     <span
                         style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 0.5rem;">Administration</span>
                 </div>
@@ -86,7 +86,7 @@
                         <button type="button" class="tab-btn" data-tab="users"
                             onclick="switchAdminTab('users')">Userbase</button>
                         <button type="button" class="tab-btn" data-tab="updates"
-                            onclick="switchAdminTab('updates')">Script Updates</button>
+                            onclick="switchAdminTab('updates')">Updates</button>
                     </div>
 
                     <div id="tab-available" class="tab-pane active">
@@ -109,25 +109,31 @@
                         <div
                             style="max-width: 500px; margin: 1rem auto; display: flex; flex-direction: column; gap: 1.5rem;">
                             <div class="card" style="border-top: 3px solid var(--royal-blue); padding: 2rem;">
-                                <h3 style="margin-bottom: 0.5rem;">Script Version Control</h3>
-                                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 2rem;">Update
-                                    the remote configuration for all active clients.</p>
+                                <h3 style="margin-bottom: 0.5rem;">Build Deployment</h3>
+                                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 2rem;">Push new builds to the fleet.</p>
 
                                 <div class="input-group">
-                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">New Version
-                                        Label</label>
+                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">Version Tag</label>
                                     <input type="text" id="updateVersion" class="input-field"
-                                        placeholder="e.g. 1.2, 2.0-beta" style="text-align: left;">
+                                        placeholder="e.g. 1.2" style="text-align: left;">
                                 </div>
+                                
                                 <div class="input-group" style="margin-top: 1rem;">
-                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">Download /
-                                        CDN URL</label>
-                                    <input type="text" id="updateUrl" class="input-field"
-                                        placeholder="https://cdn.example.com/script.rar" style="text-align: left;">
+                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">Package (.zip / .rar)</label>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <input type="file" id="updateFile" class="input-field" style="flex: 1; padding: 0.6rem;">
+                                        <button class="btn-primary btn-sm" onclick="uploadUpdate()" style="width: auto; margin: 0;">Upload</button>
+                                    </div>
                                 </div>
+
+                                <div class="input-group" style="margin-top: 1rem;">
+                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">Remote URL (Auto-filled on upload)</label>
+                                    <input type="text" id="updateUrl" class="input-field"
+                                        placeholder="https://..." style="text-align: left;">
+                                </div>
+                                
                                 <button class="btn-primary" onclick="updateProduct()"
-                                    style="background: var(--royal-blue); color: white; margin-top: 1.5rem; height: 50px;">Deploy
-                                    to Fleet</button>
+                                    style="background: var(--royal-blue); color: white; margin-top: 1.5rem; height: 50px;">Deploy to Fleet</button>
                             </div>
                         </div>
                     </div>
