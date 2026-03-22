@@ -52,16 +52,84 @@ async function login() {
     const key = document.getElementById('licenseKey').value.trim();
     if (!key) return showToast("Please enter a license key.", "warning");
 
+    const btn = document.querySelector('.login-form button');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Checking...";
+
     const res = await apiCall("/web/login", "POST", { key });
-    if (res.status === "success") {
+    
+    if (res.status === "2fa_required") {
+        btn.textContent = "Waiting for Discord...";
+        showToast("2FA Required: Check your Discord DMs to confirm login.", "info", 8000);
+        
+        // Polling for 2FA status
+        const pollInterval = setInterval(async () => {
+            const pollRes = await apiCall(`/web/login_check?auth_id=${res.auth_id}`);
+            if (pollRes.status === "success") {
+                clearInterval(pollInterval);
+                setToken(pollRes.token);
+                showToast("Login confirmed!", "success");
+                setTimeout(() => {
+                    window.location.href = pollRes.role === "admin" ? "admin.html" : "panel.html";
+                }, 1000);
+            } else if (pollRes.status === "denied" || pollRes.status === "error") {
+                clearInterval(pollInterval);
+                showToast(pollRes.message || "2FA Failed", "error");
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }, 2000);
+        
+        // Timeout after 5 minutes
+        setTimeout(() => {
+            clearInterval(pollInterval);
+            if (btn.disabled) {
+                showToast("2FA Timed out.", "warning");
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }, 300000);
+
+    } else if (res.status === "success") {
         setToken(res.token);
         window.location.href = res.role === "admin" ? "admin.html" : "panel.html";
     } else {
+        btn.disabled = false;
+        btn.textContent = originalText;
         showToast(res.message || "Invalid license key.", "error");
     }
 }
 
 // --- User Panel (panel.html) ---
+function getTimeRemaining(expiryStr) {
+    if (!expiryStr || expiryStr === "Never" || expiryStr === "N/A") return "Lifetime";
+    
+    let year, month, day;
+    if (expiryStr.length === 8) {
+        year = parseInt(expiryStr.substring(0, 4));
+        month = parseInt(expiryStr.substring(4, 6)) - 1;
+        day = parseInt(expiryStr.substring(6, 8));
+    } else if (expiryStr.includes("-")) {
+        const parts = expiryStr.split("-");
+        year = parseInt(parts[0]);
+        month = parseInt(parts[1]) - 1;
+        day = parseInt(parts[2]);
+    } else return expiryStr;
+
+    const expiryDate = new Date(year, month, day, 23, 59, 59);
+    const now = new Date();
+    const diff = expiryDate - now;
+
+    if (diff <= 0) return "Expired";
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+    if (days > 0) return `${days}d ${hours}h left`;
+    return `${hours}h left`;
+}
+
 async function initUserPanel() {
     if (!getToken()) return logout();
 
@@ -70,15 +138,28 @@ async function initUserPanel() {
 
     document.getElementById('contentBox').style.display = "block";
 
-    let expiryStr = res.expiry || "Never";
-    if (expiryStr && expiryStr.length === 8) {
-        expiryStr = `${expiryStr.substring(0, 4)}-${expiryStr.substring(4, 6)}-${expiryStr.substring(6, 8)}`;
+    let displayExpiry = res.expiry || "Never";
+    if (displayExpiry && displayExpiry.length === 8) {
+        displayExpiry = `${displayExpiry.substring(0, 4)}-${displayExpiry.substring(4, 6)}-${displayExpiry.substring(6, 8)}`;
     }
 
+    const timeRemaining = getTimeRemaining(res.expiry);
+
     if (document.getElementById('p_license')) document.getElementById('p_license').textContent = res.license || "----";
-    if (document.getElementById('p_expiry')) document.getElementById('p_expiry').textContent = expiryStr;
+    if (document.getElementById('p_expiry')) {
+        const el = document.getElementById('p_expiry');
+        el.textContent = timeRemaining;
+        el.className = "user-main"; // Base class
+        if (timeRemaining === "Expired") el.classList.add("status-banned");
+        else if (timeRemaining && timeRemaining.includes("d") && parseInt(timeRemaining) < 3) el.classList.add("status-suspended");
+        else el.classList.add("status-active");
+    }
     if (document.getElementById('p_hwid')) document.getElementById('p_hwid').textContent = res.hwid || "Not Linked";
     if (document.getElementById('p_discord')) document.getElementById('p_discord').textContent = res.discord_id || "Not Linked";
+
+    if (timeRemaining === "Expired") {
+        showToast("Your license has expired. Please get a new one.", "warning", 10000);
+    }
 }
 
 async function downloadClient() {
@@ -173,42 +254,54 @@ async function refreshUserList() {
         if (Object.keys(users).length === 0) {
             userListEl.innerHTML = "<p style='color: var(--text-secondary); font-size: 0.9rem;'>No active users recorded.</p>";
         } else {
+            // Header for userbase
+            const header = document.createElement("div");
+            header.className = "user-item";
+            header.style.background = "var(--bg-card)";
+            header.style.fontWeight = "700";
+            header.style.fontSize = "0.75rem";
+            header.style.textTransform = "uppercase";
+            header.style.color = "var(--text-secondary)";
+            header.innerHTML = `
+                <div style="flex: 2;">User / ID</div>
+                <div style="flex: 2;">License / HWID</div>
+                <div style="flex: 1; text-align: center;">Time Left</div>
+                <div style="flex: 2; text-align: right;">Actions</div>
+            `;
+            userListEl.appendChild(header);
+
             for (const [id, data] of Object.entries(users)) {
                 let isBanned = banned.includes(data.hwid);
                 let isSuspended = data.status === "suspended";
-                let statusBadge = isBanned ? "Banned" : (isSuspended ? "Suspended" : (data.status || "Active"));
+                
+                const timeRemaining = getTimeRemaining(data.expiry);
+                let statusBadge = isBanned ? "Banned" : (isSuspended ? "Suspended" : (timeRemaining === "Expired" ? "Expired" : "Active"));
 
                 let statusClass = "user-sub";
-                if (isBanned) statusClass += " status-banned";
+                if (isBanned || timeRemaining === "Expired") statusClass += " status-banned";
                 else if (isSuspended) statusClass += " status-suspended";
-                else if (statusBadge === "Active") statusClass += " status-active";
+                else statusClass += " status-active";
 
                 const item = document.createElement("div");
                 item.className = "user-item";
-                item.style.flexDirection = "column";
-                item.style.alignItems = "stretch";
-                item.style.gap = "0.75rem";
+                item.style.gap = "1rem";
                 item.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="user-info">
-                            <span class="user-main">${data.username || "Unknown Entity"}</span>
-                            <span class="${statusClass}">${statusBadge}</span>
-                        </div>
-                        <span class="user-sub" style="font-size: 0.75rem;">${id}</span>
+                    <div style="flex: 2; display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
+                        <span class="user-main" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${data.username || "Unknown"}</span>
+                        <span class="user-sub" style="font-size: 0.7rem; opacity: 0.6;">${id}</span>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.75rem;">
-                        <div class="user-info"><span class="user-sub">HWID</span><span style="font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${data.hwid}</span></div>
-                        <div class="user-info"><span class="user-sub">License</span><span style="font-family: monospace;">${data.license || "None"}</span></div>
+                    <div style="flex: 2; display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
+                        <span class="user-sub" style="font-family: monospace; color: var(--text-primary);">${data.license || "None"}</span>
+                        <span class="user-sub" style="font-size: 0.65rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${data.hwid}</span>
                     </div>
-                    <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
-                        <button class="btn-primary btn-sm" onclick="giveLicense('${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Give</button>
-                        <button class="btn-primary btn-sm" onclick="takeLicense('${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Take</button>
-                        <button class="btn-primary btn-sm" onclick="takeAction('reset', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Reset</button>
-                        <button class="btn-primary btn-sm btn-glow-green" onclick="takeAction('unsuspend', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Unsuspend</button>
-                        <button class="btn-primary btn-sm btn-glow-yellow" onclick="takeAction('suspend', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Suspend</button>
-                        <button class="btn-primary btn-sm btn-glow-green" onclick="takeAction('unban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Unban</button>
-                        <button class="btn-primary btn-sm btn-danger" onclick="takeAction('ban', '${esc(data.hwid)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Ban</button>
-                        <button class="btn-primary btn-sm btn-danger" onclick="takeAction('wipe', '${esc(id)}')" style="width: auto; margin: 0; padding: 4px 8px; font-size: 0.75rem;">Wipe</button>
+                    <div style="flex: 1; text-align: center;">
+                        <span class="${statusClass}" style="font-size: 0.75rem;">${timeRemaining}</span>
+                    </div>
+                    <div style="flex: 2; display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end;">
+                        <button class="btn-primary btn-sm btn-action-small" onclick="giveLicense('${esc(id)}')" title="Give License">Give</button>
+                        <button class="btn-primary btn-sm btn-action-small btn-danger" onclick="takeLicense('${esc(id)}')" title="Take License">Take</button>
+                        <button class="btn-primary btn-sm btn-action-small" onclick="takeAction('reset', '${esc(id)}')" title="Reset HWID">Reset</button>
+                        <button class="btn-primary btn-sm btn-action-small btn-danger" onclick="takeAction('wipe', '${esc(id)}')" title="Wipe User">Wipe</button>
                     </div>
                 `;
                 userListEl.appendChild(item);

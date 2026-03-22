@@ -20,6 +20,9 @@
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 16px;
+    
+    --royal-blue: #3b82f6;
+    --royal-blue-glow: rgba(59, 130, 246, 0.4);
 }
 
 * {
@@ -320,15 +323,35 @@ input[type="password"]:focus {
 }
 
 .card {
-    background: var(--bg-input);
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 1.5rem;
-    transition: border-color 0.2s ease;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--royal-blue), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .card:hover {
-    border-color: var(--border-hover);
+    border-color: var(--royal-blue);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+.card:hover::before {
+    opacity: 1;
 }
 
 .card h3 {
@@ -550,4 +573,36 @@ input[type="password"]:focus {
     box-shadow: 0 0 15px rgba(75, 255, 75, 0.3) !important;
     border-color: #4bff4b !important;
     color: #4bff4b !important;
+}
+
+.btn-action-small {
+    padding: 4px 10px !important;
+    font-size: 0.7rem !important;
+    width: auto !important;
+    margin: 0 !important;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.btn-action-small:hover {
+    background: var(--royal-blue) !important;
+    color: white !important;
+    border-color: var(--royal-blue) !important;
+}
+
+.btn-action-small.btn-danger:hover {
+    background: var(--danger) !important;
+    border-color: var(--danger) !important;
+}
+
+/* Animations for 2FA */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
 }
