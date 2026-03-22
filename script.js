@@ -1,10 +1,9 @@
-// Auto-detect API URL. If on file://, fallback to a prompt or hardcoded dev URL
-let API_URL = ""; 
-if (window.location.protocol === "file:") {
-    API_URL = "http://localhost:8080"; 
-} else {
-    // Relative URL works best for hosted environments
-    API_URL = window.location.origin;
+// Auto-detect API URL.
+const BOT_URL = "https://xx.e.jrnm.app";
+let API_URL = window.location.origin;
+
+if (window.location.protocol === "file:" || !window.location.hostname.includes("jrnm.app")) {
+    API_URL = BOT_URL;
 }
 
 // --- Custom Toast Notifications ---
