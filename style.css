@@ -365,8 +365,8 @@ input[type="password"]:focus {
 
 /* Stats */
 .stats-row {
-    display: flex;
-    justify-content: space-around;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 1rem;
 }
 
