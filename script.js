@@ -44,11 +44,18 @@ async function apiCall(endpoint, method = "GET", body = null) {
     if (body) options.body = JSON.stringify(body);
 
     try {
-        const res = await fetch(`${API_URL}${endpoint}`, options);
+        const fullUrl = `${API_URL}${endpoint}`;
+        console.log(`[API] Calling: ${method} ${fullUrl}`);
+        const res = await fetch(fullUrl, options);
+        if (!res.ok) {
+            console.error(`[API] HTTP Error ${res.status} for ${fullUrl}`);
+            const text = await res.text();
+            console.error(`[API] Response body:`, text.substring(0, 200));
+        }
         return await res.json();
     } catch (e) {
-        console.error("API Error", e);
-        return { status: "error", message: "Failed to connect to backend" };
+        console.error("[API] Fetch Exception:", e);
+        return { status: "error", message: `Failed to connect: ${e.message}` };
     }
 }
 
