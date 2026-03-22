@@ -48,9 +48,9 @@ async function apiCall(endpoint, method = "GET", body = null) {
         console.log(`[API] Calling: ${method} ${fullUrl}`);
         const res = await fetch(fullUrl, options);
         if (!res.ok) {
-            console.error(`[API] HTTP Error ${res.status} for ${fullUrl}`);
             const text = await res.text();
-            console.error(`[API] Response body:`, text.substring(0, 200));
+            console.error(`[API] HTTP ${res.status} for ${fullUrl}:`, text.substring(0, 200));
+            return { status: "error", message: `Server Error ${res.status}: ${text.substring(0, 50)}` };
         }
         return await res.json();
     } catch (e) {
