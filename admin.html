@@ -22,7 +22,7 @@
                     min="1">
             </div>
             <div class="input-group">
-                <input type="text" id="giveLicensePrefix" class="input-field" placeholder="Prefix (e.g. UG)" value="">
+                <input type="text" id="giveLicensePrefix" class="input-field" placeholder="Prefix" value="">
             </div>
             <div class="modal-actions" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                 <button type="button" class="btn-primary btn-danger" onclick="closeGiveLicenseModal()"
@@ -107,20 +107,18 @@
                         <div
                             style="max-width: 500px; margin: 1rem auto; display: flex; flex-direction: column; gap: 1.5rem;">
                             <div class="card" style="border-top: 3px solid var(--royal-blue); padding: 2rem;">
-                                <h3 style="margin-bottom: 0.5rem;">Build Deployment</h3>
-                                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 2rem;">Push
-                                    new builds to the fleet.</p>
+                                <h3 style="margin-bottom: 0.5rem;">Update Deployer</h3>
 
                                 <div class="input-group">
-                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">Version
-                                        Tag</label>
-                                    <input type="text" id="updateVersion" class="input-field" placeholder="e.g. 1.2"
+                                    <label class="user-sub"
+                                        style="margin-bottom: 0.5rem; display: block;">Version</label>
+                                    <input type="text" id="updateVersion" class="input-field" placeholder=""
                                         style="text-align: left;">
                                 </div>
 
                                 <div class="input-group" style="margin-top: 1rem;">
-                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">Package (.zip
-                                        / .rar)</label>
+                                    <label class="user-sub"
+                                        style="margin-bottom: 0.5rem; display: block;">Folder</label>
                                     <div style="display: flex; gap: 0.5rem;">
                                         <input type="file" id="updateFile" class="input-field"
                                             style="flex: 1; padding: 0.6rem;">
@@ -130,8 +128,7 @@
                                 </div>
 
                                 <div class="input-group" style="margin-top: 1rem;">
-                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">Remote URL
-                                        (Auto-filled on upload)</label>
+                                    <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">URL</label>
                                     <input type="text" id="updateUrl" class="input-field" placeholder="https://..."
                                         style="text-align: left;">
                                 </div>
