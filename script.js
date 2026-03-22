@@ -126,8 +126,8 @@ function getTimeRemaining(expiryStr) {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
-    if (days > 0) return `${days}d ${hours}h left`;
-    return `${hours}h left`;
+    if (days > 0) return `${days}d ${hours}h`;
+    return `${hours}h`;
 }
 
 async function initUserPanel() {
@@ -266,6 +266,7 @@ async function refreshUserList() {
                 <div style="flex: 2;">User / ID</div>
                 <div style="flex: 2;">License / HWID</div>
                 <div style="flex: 1; text-align: center;">Time Left</div>
+                <div style="flex: 1.5; text-align: center;">Last IP</div>
                 <div style="flex: 2; text-align: right;">Actions</div>
             `;
             userListEl.appendChild(header);
@@ -296,6 +297,9 @@ async function refreshUserList() {
                     </div>
                     <div style="flex: 1; text-align: center;">
                         <span class="${statusClass}" style="font-size: 0.75rem;">${timeRemaining}</span>
+                    </div>
+                    <div style="flex: 1.5; text-align: center;">
+                        <span class="user-sub" style="font-size: 0.75rem; font-family: monospace;">${data.ip || "N/A"}</span>
                     </div>
                     <div style="flex: 2; display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end;">
                         <button class="btn-primary btn-sm btn-action-small" onclick="giveLicense('${esc(id)}')" title="Give License">Give</button>
