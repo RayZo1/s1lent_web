@@ -301,6 +301,8 @@ async function refreshUserList() {
                         <button class="btn-primary btn-sm btn-action-small" onclick="giveLicense('${esc(id)}')" title="Give License">Give</button>
                         <button class="btn-primary btn-sm btn-action-small btn-danger" onclick="takeLicense('${esc(id)}')" title="Take License">Take</button>
                         <button class="btn-primary btn-sm btn-action-small" onclick="takeAction('reset', '${esc(id)}')" title="Reset HWID">Reset</button>
+                        <button class="btn-primary btn-sm btn-action-small" onclick="takeAction('unban', '${esc(data.hwid)}')" title="Unban">Unban</button>
+                        <button class="btn-primary btn-sm btn-action-small btn-danger" onclick="takeAction('ban', '${esc(data.hwid)}')" title="Ban">Ban</button>
                         <button class="btn-primary btn-sm btn-action-small btn-danger" onclick="takeAction('wipe', '${esc(id)}')" title="Wipe User">Wipe</button>
                     </div>
                 `;
@@ -376,7 +378,7 @@ async function confirmGiveLicense() {
         return closeGiveLicenseModal();
     }
     const days = parseInt(document.getElementById("giveLicenseDays")?.value || "30", 10);
-    const prefix = document.getElementById("giveLicensePrefix")?.value || "UG";
+    const prefix = document.getElementById("giveLicensePrefix")?.value || "";
     closeGiveLicenseModal();
     await takeAction("give_license", target, { days, prefix });
 }
@@ -399,7 +401,7 @@ function filterUsers() {
 
 async function generateLicense() {
     const days = parseInt(document.getElementById('genDays').value || "30", 10);
-    const prefix = document.getElementById('genPrefix').value || "UG";
+    const prefix = document.getElementById('genPrefix').value || "";
     const res = await apiCall("/admin/create_license", "POST", { days, prefix });
     if (res.status === "success") {
         showToast(`Created: ${res.license}`, "success", 7000);

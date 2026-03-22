@@ -21,7 +21,7 @@
                 <input type="number" id="giveLicenseDays" class="input-field" placeholder="Expiry (days)" value="30" min="1">
             </div>
             <div class="input-group">
-                <input type="text" id="giveLicensePrefix" class="input-field" placeholder="Prefix (optional)" value="UG">
+                <input type="text" id="giveLicensePrefix" class="input-field" placeholder="Prefix (e.g. UG)" value="">
             </div>
             <div class="modal-actions" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                 <button type="button" class="btn-primary btn-danger" onclick="closeGiveLicenseModal()" style="margin: 0;">Cancel</button>
@@ -71,7 +71,7 @@
                         <input type="number" id="genDays" class="input-field" placeholder="Duration (Days)" value="30">
                     </div>
                     <div class="input-group">
-                        <input type="text" id="genPrefix" class="input-field" placeholder="Prefix (e.g. UG)" value="UG">
+                        <input type="text" id="genPrefix" class="input-field" placeholder="Prefix (e.g. UG)" value="">
                     </div>
                     <button class="btn-primary" onclick="generateLicense()">Generate</button>
                 </div>
