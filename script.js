@@ -48,15 +48,22 @@ async function apiCall(endpoint, method = "GET", body = null) {
         const fullUrl = `${API_URL}/api${endpoint}`;
         console.log(`[API] Calling: ${method} ${fullUrl}`);
         const res = await fetch(fullUrl, options);
-        if (!res.ok) {
-            const text = await res.text();
-            console.error(`[API] HTTP ${res.status} for ${fullUrl}:`, text.substring(0, 200));
-            return { status: "error", message: `Server Error ${res.status}: ${text.substring(0, 50)}` };
+        let data;
+        try {
+            data = await res.json();
+        } catch(e) {
+            data = null;
         }
-        return await res.json();
+
+        if (!res.ok) {
+            console.error(`[API] HTTP ${res.status} for ${fullUrl}`, data);
+            const msg = (data && data.message) ? data.message : `Error ${res.status}`;
+            return { status: "error", message: msg };
+        }
+        return data;
     } catch (e) {
         console.error("[API] Fetch Exception:", e);
-        return { status: "error", message: `Failed to connect: ${e.message}` };
+        return { status: "error", message: "Connection failed. Is the bot online?" };
     }
 }
 

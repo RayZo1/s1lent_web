@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klient &middot; User Panel</title>
+    <title>klient.fun | User Panel</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -17,39 +17,37 @@
         <div class="content-card" style="display: none;" id="contentBox">
             <header class="header">
                 <div class="brand-group">
-                    <span class="brand-name" style="font-weight: 700;">Klient</span>
-                    <span style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 0.5rem;">User Panel</span>
+                    <span class="brand-name" style="font-weight: 700;">klient.fun</span>
                 </div>
-                <button class="btn-primary btn-sm btn-danger" onclick="logout()" style="width: auto; margin: 0;">Logout</button>
+                <button class="btn-primary btn-sm btn-danger" onclick="logout()"
+                    style="width: auto; margin: 0;">Logout</button>
             </header>
 
             <div class="admin-grid">
-                <!-- User Info -->
                 <div class="card full-width">
-                    <h3>License Overview</h3>
                     <div class="user-list">
                         <div class="user-item">
                             <div class="user-info">
-                                <span class="user-sub">License Key</span>
+                                <span class="user-sub">License</span>
                                 <span class="user-main" id="p_license">---- ---- ---- ----</span>
                             </div>
                         </div>
                         <div class="user-item">
                             <div class="user-info">
-                                <span class="user-sub">Time Remaining</span>
+                                <span class="user-sub">License Timer</span>
                                 <span class="user-main" id="p_expiry">-- days</span>
                             </div>
                         </div>
                         <div class="user-item" id="hwid-row">
                             <div class="user-info">
-                                <span class="user-sub">Hardware ID</span>
-                                <span class="user-main" style="font-family: monospace; font-size: 0.8rem;" id="p_hwid">Not Linked</span>
+                                <span class="user-sub">HWID</span>
+                                <span class="user-main" style="font-family: monospace; font-size: 0.8rem;"
+                                    id="p_hwid">Not Linked</span>
                             </div>
-                            <button class="btn-primary btn-sm" onclick="resetHWID()" style="width: auto; margin: 0;">Reset HWID</button>
                         </div>
                         <div class="user-item">
                             <div class="user-info">
-                                <span class="user-sub">Discord Identity</span>
+                                <span class="user-sub">Discord ID</span>
                                 <span class="user-main" id="p_discord">Not Linked</span>
                             </div>
                         </div>
@@ -59,13 +57,15 @@
                 <!-- Support/Actions -->
                 <div class="card">
                     <h3>Download</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">Get the latest version of the client loader.</p>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">Get the latest
+                        version.</p>
                     <button class="btn-primary" onclick="downloadClient()">Download Loader</button>
                 </div>
 
                 <div class="card">
                     <h3>Support</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">Joined our community for updates and assistance.</p>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">Join our community
+                        for updates and support.</p>
                     <a href="https://discord.gg/F6GVM27vTm" target="_blank" style="text-decoration: none;">
                         <button class="btn-primary">Discord Server</button>
                     </a>
