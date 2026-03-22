@@ -1,8 +1,10 @@
 // Auto-detect API URL. If on file://, fallback to a prompt or hardcoded dev URL
 let API_URL = ""; 
 if (window.location.protocol === "file:") {
-    API_URL = "http://localhost:8080"; // Fallback for local testing
-    console.warn("Website opened from local file. Using fallback API_URL: " + API_URL);
+    API_URL = "http://localhost:8080"; 
+} else {
+    // Relative URL works best for hosted environments
+    API_URL = window.location.origin;
 }
 
 // --- Custom Toast Notifications ---
@@ -44,7 +46,7 @@ async function apiCall(endpoint, method = "GET", body = null) {
     if (body) options.body = JSON.stringify(body);
 
     try {
-        const fullUrl = `${API_URL}${endpoint}`;
+        const fullUrl = `${API_URL}/api${endpoint}`;
         console.log(`[API] Calling: ${method} ${fullUrl}`);
         const res = await fetch(fullUrl, options);
         if (!res.ok) {
@@ -69,7 +71,7 @@ async function login() {
     btn.disabled = true;
     btn.textContent = "Checking...";
 
-    const res = await apiCall("/web/login", "POST", { key });
+    const res = await apiCall("/login", "POST", { key });
     
     if (res.status === "2fa_required") {
         btn.textContent = "Waiting for Discord...";
@@ -77,7 +79,7 @@ async function login() {
         
         // Polling for 2FA status
         const pollInterval = setInterval(async () => {
-            const pollRes = await apiCall(`/web/login_check?auth_id=${res.auth_id}`);
+            const pollRes = await apiCall(`/login_check?auth_id=${res.auth_id}`);
             if (pollRes.status === "success") {
                 clearInterval(pollInterval);
                 setToken(pollRes.token);
@@ -145,7 +147,7 @@ function getTimeRemaining(expiryStr) {
 async function initUserPanel() {
     if (!getToken()) return logout();
 
-    const res = await apiCall("/web/user");
+    const res = await apiCall("/user");
     if (res.status === "error") return logout();
 
     document.getElementById('contentBox').style.display = "block";
@@ -184,7 +186,7 @@ async function downloadClient() {
 }
 
 async function resetHWID_User() {
-    const res = await apiCall("/web/reset_hwid", "POST");
+    const res = await apiCall("/reset_hwid", "POST");
     if (res.status === "success") {
         showToast("HWID reset successful.", "success");
         initUserPanel();
@@ -449,7 +451,7 @@ async function uploadUpdate() {
     showToast("Uploading...", "info", 2000);
     
     try {
-        const response = await fetch(`${API_URL}/admin/upload`, {
+        const response = await fetch(`${API_URL}/api/admin/upload`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
             body: formData
