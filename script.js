@@ -254,7 +254,7 @@ async function refreshUserList() {
                 div.className = "user-item";
                 div.innerHTML = `
                     <div class="user-info">
-                        <span class="user-main" style="font-family: monospace;">${row.license}</span>
+                        <span class="user-main sensitive-data" style="font-family: monospace;">${row.license}</span>
                         <span class="user-sub">Expires: ${expiryStr}</span>
                     </div>
                     <button type="button" class="btn-primary btn-sm btn-danger" onclick="deleteAvailableLicense('${String(row.id).replace(/'/g, "\\'")}')" style="width: auto; margin: 0;">Delete</button>
@@ -309,17 +309,17 @@ async function refreshUserList() {
                 item.innerHTML = `
                     <div style="flex: 2; display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
                         <span class="user-main" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${data.username || "Unknown"}</span>
-                        <span class="user-sub" style="font-size: 0.7rem; opacity: 0.6;">${id}</span>
+                        <span class="user-sub sensitive-data" style="font-size: 0.7rem; opacity: 0.6;">${id}</span>
                     </div>
                     <div style="flex: 2; display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
-                        <span class="user-sub" style="font-family: monospace; color: var(--text-primary);">${data.license || "None"}</span>
+                        <span class="user-sub sensitive-data" style="font-family: monospace; color: var(--text-primary);">${data.license || "None"}</span>
                         <span class="user-sub" style="font-size: 0.65rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${data.hwid}</span>
                     </div>
                     <div style="flex: 1; text-align: center;">
                         <span class="${statusClass}" style="font-size: 0.75rem;">${timeRemaining}</span>
                     </div>
                     <div style="flex: 1.5; text-align: center;">
-                        <span class="user-sub" style="font-size: 0.75rem; font-family: monospace;">${data.ip || "N/A"}</span>
+                        <span class="user-sub sensitive-data" style="font-size: 0.75rem; font-family: monospace;">${data.ip || "N/A"}</span>
                     </div>
                     <div style="flex: 2; display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end;">
                         <button class="btn-primary btn-sm btn-action-small" onclick="giveLicense('${esc(id)}')" title="Give License">Give</button>

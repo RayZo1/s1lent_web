@@ -606,3 +606,18 @@ input[type="password"]:focus {
 .pulse {
     animation: pulse 2s infinite;
 }
+
+/* Sensitive Data Reveal */
+.sensitive-data {
+    filter: blur(4px);
+    transition: filter 0.2s ease, opacity 0.2s ease;
+    opacity: 0.3;
+    cursor: help;
+    user-select: none;
+}
+
+.sensitive-data:hover {
+    filter: blur(0);
+    opacity: 1;
+    user-select: text;
+}

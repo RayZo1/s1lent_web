@@ -16,7 +16,7 @@
     <div id="give-license-modal" class="modal-overlay" aria-hidden="true" onclick="closeGiveLicenseModal()">
         <div class="modal-box" onclick="event.stopPropagation()">
             <h3 class="modal-title">Give license</h3>
-            <p class="modal-desc">Create a new license and assign it to this user.</p>
+            <p class="modal-desc">Give new license.</p>
             <div class="input-group">
                 <input type="number" id="giveLicenseDays" class="input-field" placeholder="Expiry (days)" value="30"
                     min="1">
@@ -72,7 +72,7 @@
                         <input type="number" id="genDays" class="input-field" placeholder="Duration (Days)" value="30">
                     </div>
                     <div class="input-group">
-                        <input type="text" id="genPrefix" class="input-field" placeholder="Prefix (e.g. UG)" value="">
+                        <input type="text" id="genPrefix" class="input-field" placeholder="Prefix" value="">
                     </div>
                     <button class="btn-primary" onclick="generateLicense()">Create</button>
                 </div>
