@@ -14,8 +14,13 @@
 <body>
     <div id="toast-container"></div>
 
+    <div class="window-controls">
+        <button class="control-btn btn-min" onclick="minimizeWindow()"></button>
+        <button class="control-btn btn-close" onclick="exitWindow()"></button>
+    </div>
+
     <!-- Login Screen -->
-    <main id="login-screen" class="screen active">
+    <main id="login-screen" class="screen active" onmousedown="if(event.target === this) bridge.DragWindow()">
         <div class="login-card">
             <div class="brand-header">
                 <span class="brand-name">klient.fun</span>
@@ -27,9 +32,6 @@
                 </div>
                 <button type="button" class="btn-primary" onclick="handleLogin()">SIGN IN</button>
             </form>
-            <div class="support-links">
-                <a href="https://discord.gg/F6GVM27vTm" target="_blank" class="text-link">Get a license</a>
-            </div>
         </div>
     </main>
     <!-- Loader Screen -->
@@ -45,7 +47,7 @@
         <div class="menu-container">
             <!-- Sidebar -->
             <aside class="sidebar"
-                onmousedown="if(event.target === this || event.target.classList.contains('sidebar-header')) window.chrome.webview.hostObjects.bridge.DragWindow()">
+                onmousedown="if(event.target === this || event.target.classList.contains('sidebar-header')) bridge.DragWindow()">
                 <div class="sidebar-header">
                     <span class="logo-m">M</span>
                     <span class="logo-text">MOOZE</span>

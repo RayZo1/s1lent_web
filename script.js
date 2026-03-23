@@ -47,7 +47,15 @@ async function startLoginTransition() {
 
     // Switch to Main Menu
     await showScreen('main-menu', true);
-    lucide.createIcons();
+    if(window.lucide) lucide.createIcons();
+}
+
+function minimizeWindow() {
+    bridge?.MinimizeWindow();
+}
+
+function exitWindow() {
+    bridge?.CloseWindow();
 }
 
 // --- Login Logic ---
