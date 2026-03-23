@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klient Utility</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="app_style.css">
+</head>
+<body onmousedown="if(event.target === document.body || event.target.classList.contains('login-screen')) bridge?.DragWindow()">
+    
+    <!-- Window Controls -->
+    <div class="window-controls">
+        <button class="control-btn btn-min" onclick="minimizeWindow()">
+            <i data-lucide="minus"></i>
+        </button>
+        <button class="control-btn btn-close" onclick="exitWindow()">
+            <i data-lucide="x"></i>
+        </button>
+    </div>
+
+    <div id="toast-container"></div>
+    <div class="background-glow"></div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="login-card">
+            <div class="brand">
+                <div class="logo-glow"></div>
+                <h1>KLIENT</h1>
+                <p>PREMIUM UTILITY</p>
+            </div>
+            <div class="input-container">
+                <input type="text" id="licenseKey" placeholder="LICENSE KEY" autocomplete="off" spellcheck="false">
+                <div class="input-focus"></div>
+            </div>
+            <button class="btn-primary" onclick="handleLogin()">SIGN IN</button>
+            <div class="login-footer">
+                <a href="#">Forgot your key?</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loader Screen -->
+    <div id="loader-screen" class="screen">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <h2 class="loader-text">Initializing Modules</h2>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Menu -->
+    <div id="main-menu" class="screen">
+        <div class="app-container">
+            <!-- Sidebar -->
+            <aside class="sidebar" onmousedown="bridge?.DragWindow()">
+                <div class="sidebar-brand">
+                    <div class="logo-dot"></div>
+                    <span>KLIENT</span>
+                </div>
+                <nav class="nav-list">
+                    <div class="nav-item active" onclick="switchCategory('assistance')">
+                        <i data-lucide="target"></i>
+                        <span>Assistance</span>
+                    </div>
+                    <div class="nav-item" onclick="switchCategory('exploits')">
+                        <i data-lucide="zap"></i>
+                        <span>Exploits</span>
+                    </div>
+                    <div class="nav-item" onclick="switchCategory('movement')">
+                        <i data-lucide="move"></i>
+                        <span>Movement</span>
+                    </div>
+                    <div class="nav-item" onclick="switchCategory('config')">
+                        <i data-lucide="settings-2"></i>
+                        <span>Config</span>
+                    </div>
+                    <div class="nav-item" onclick="switchCategory('settings')">
+                        <i data-lucide="sliders"></i>
+                        <span>Settings</span>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Assistance Category -->
+                <div class="category-content" id="cat-assistance">
+                    <div class="header-row">
+                        <h2 class="category-title">Assistance</h2>
+                        <div class="tab-list">
+                            <div class="tab active" data-category="assistance">General</div>
+                            <div class="tab" data-category="assistance">Aimbot</div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="settings-group">
+                            <h3>Aimbot Configuration</h3>
+                            <div class="setting-item">
+                                <label>Prediction</label>
+                                <div class="slider-container">
+                                    <input type="range" min="0" max="0.5" step="0.001" value="0.0" oninput="updateVal('prediction', this.value)">
+                                    <span id="prediction-val">0.000</span>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <label>Hitchance</label>
+                                <div class="slider-container">
+                                    <input type="range" min="0" max="100" value="100" oninput="updateVal('hitchance', this.value + '%')">
+                                    <span id="hitchance-val">100%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Targeting</h3>
+                            <div class="setting-item">
+                                <label>Field of View</label>
+                                <div class="slider-container">
+                                    <input type="range" min="0" max="360" value="180" oninput="updateVal('fov', this.value)">
+                                    <span id="fov-val">180</span>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <label>Hit Position</label>
+                                <select onchange="updateVal('hit-position', this.value)">
+                                    <option>Head</option>
+                                    <option selected>Closest Point</option>
+                                    <option>Torso</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update Button Area -->
+                <div class="bottom-bar">
+                    <button class="btn-update" onclick="applyUpdate()">
+                        <i data-lucide="refresh-cw"></i>
+                        <span>UPDATE</span>
+                    </button>
+                    <button class="btn-secondary" onclick="saveConfig()">SAVE</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="app_script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
