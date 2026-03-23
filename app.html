@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klient Utility</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap">
+    <title>klient.fun</title>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap">
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="app_style.css">
 </head>
-<body onmousedown="if(event.target === document.body || event.target.classList.contains('login-screen')) bridge?.DragWindow()">
-    
+
+<body
+    onmousedown="if(event.target === document.body || event.target.classList.contains('login-screen')) bridge?.DragWindow()">
+
     <!-- Window Controls -->
     <div class="window-controls">
         <button class="control-btn btn-min" onclick="minimizeWindow()">
@@ -28,17 +32,13 @@
         <div class="login-card">
             <div class="brand">
                 <div class="logo-glow"></div>
-                <h1>KLIENT</h1>
-                <p>PREMIUM UTILITY</p>
+                <h1>klient.fun</h1>
             </div>
             <div class="input-container">
                 <input type="text" id="licenseKey" placeholder="LICENSE KEY" autocomplete="off" spellcheck="false">
                 <div class="input-focus"></div>
             </div>
-            <button class="btn-primary" onclick="handleLogin()">SIGN IN</button>
-            <div class="login-footer">
-                <a href="#">Forgot your key?</a>
-            </div>
+            <button class="btn-primary" onclick="handleLogin()">-> Login</button>
         </div>
     </div>
 
@@ -97,21 +97,23 @@
                             <div class="tab" data-category="assistance">Aimbot</div>
                         </div>
                     </div>
-                    
+
                     <div class="settings-grid">
                         <div class="settings-group">
                             <h3>Aimbot Configuration</h3>
                             <div class="setting-item">
                                 <label>Prediction</label>
                                 <div class="slider-container">
-                                    <input type="range" min="0" max="0.5" step="0.001" value="0.0" oninput="updateVal('prediction', this.value)">
+                                    <input type="range" min="0" max="0.5" step="0.001" value="0.0"
+                                        oninput="updateVal('prediction', this.value)">
                                     <span id="prediction-val">0.000</span>
                                 </div>
                             </div>
                             <div class="setting-item">
                                 <label>Hitchance</label>
                                 <div class="slider-container">
-                                    <input type="range" min="0" max="100" value="100" oninput="updateVal('hitchance', this.value + '%')">
+                                    <input type="range" min="0" max="100" value="100"
+                                        oninput="updateVal('hitchance', this.value + '%')">
                                     <span id="hitchance-val">100%</span>
                                 </div>
                             </div>
@@ -122,7 +124,8 @@
                             <div class="setting-item">
                                 <label>Field of View</label>
                                 <div class="slider-container">
-                                    <input type="range" min="0" max="360" value="180" oninput="updateVal('fov', this.value)">
+                                    <input type="range" min="0" max="360" value="180"
+                                        oninput="updateVal('fov', this.value)">
                                     <span id="fov-val">180</span>
                                 </div>
                             </div>
@@ -155,4 +158,5 @@
         lucide.createIcons();
     </script>
 </body>
+
 </html>
