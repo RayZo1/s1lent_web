@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Klient | Premium Utility</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap">
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
     <div id="toast-container"></div>
 
@@ -15,18 +18,17 @@
     <main id="login-screen" class="screen active">
         <div class="login-card">
             <div class="brand-header">
-                <span class="brand-logo">M</span>
-                <span class="brand-name">Klient</span>
+                <span class="brand-name">klient.fun</span>
             </div>
-            <p class="subtitle">Secure Authentication</p>
             <form id="loginForm" class="login-form">
                 <div class="input-group">
-                    <input type="text" id="licenseKey" placeholder="LICENSE KEY" autocomplete="off" spellcheck="false" required>
+                    <input type="text" id="licenseKey" placeholder="LICENSE" autocomplete="off" spellcheck="false"
+                        required>
                 </div>
                 <button type="button" class="btn-primary" onclick="handleLogin()">SIGN IN</button>
             </form>
             <div class="support-links">
-                <a href="https://discord.gg/klient" target="_blank" class="text-link">Get a license</a>
+                <a href="https://discord.gg/F6GVM27vTm" target="_blank" class="text-link">Get a license</a>
             </div>
         </div>
     </main>
@@ -42,7 +44,8 @@
     <main id="main-menu" class="screen">
         <div class="menu-container">
             <!-- Sidebar -->
-            <aside class="sidebar" onmousedown="if(event.target === this || event.target.classList.contains('sidebar-header')) window.chrome.webview.hostObjects.bridge.DragWindow()">
+            <aside class="sidebar"
+                onmousedown="if(event.target === this || event.target.classList.contains('sidebar-header')) window.chrome.webview.hostObjects.bridge.DragWindow()">
                 <div class="sidebar-header">
                     <span class="logo-m">M</span>
                     <span class="logo-text">MOOZE</span>
@@ -83,76 +86,80 @@
 
                 <!-- Scrollable Settings -->
                 <div class="settings-grid">
-                        <div class="setting-row">
-                            <span class="setting-label">Enabled</span>
-                            <label class="custom-checkbox">
-                                <input type="checkbox" checked onchange="updateVal('enabled', this.checked)">
-                                <span class="checkmark"></span>
-                            </label>
-                        </div>
-                        <div class="setting-row">
-                            <span class="setting-label">Silent Aim</span>
-                            <label class="custom-checkbox">
-                                <input type="checkbox" onchange="updateVal('silent', this.checked)">
-                                <span class="checkmark"></span>
-                            </label>
-                        </div>
-                        <div class="setting-row">
-                            <span class="setting-label">Prediction</span>
-                            <span class="setting-value" id="prediction-val">0.000</span>
-                        </div>
-                        <div class="slider-container">
-                            <input type="range" class="slider" min="0" max="1" step="0.001" value="0.0" oninput="updateVal('prediction', this.value)">
-                        </div>
-
-                        <div class="setting-row">
-                            <span class="setting-label">Hit Position</span>
-                            <select class="dropdown" onchange="updateVal('hit-position', this.value)">
-                                <option>Closest Point</option>
-                                <option>Head</option>
-                                <option>Torso</option>
-                            </select>
-                        </div>
-
-                        <div class="setting-row">
-                             <span class="setting-label">Hit Chance</span>
-                             <span class="setting-value" id="hitchance-val">100%</span>
-                        </div>
-                        <div class="slider-container">
-                            <input type="range" class="slider" min="0" max="100" step="1" value="100" oninput="updateVal('hitchance', this.value + '%')">
-                        </div>
-
-                        <div class="setting-row">
-                             <span class="setting-label">FOV</span>
-                             <span class="setting-value" id="fov-val">180</span>
-                        </div>
-                        <div class="slider-container">
-                            <input type="range" class="slider" min="0" max="1000" step="1" value="180" oninput="updateVal('fov', this.value)">
-                        </div>
-
-                        <div class="setting-row">
-                             <span class="setting-label">Smooth</span>
-                             <span class="setting-value" id="smooth-val">1.0</span>
-                        </div>
-                        <div class="slider-container">
-                            <input type="range" class="slider" min="1" max="10" step="0.1" value="1.0" oninput="updateVal('smooth', this.value)">
-                        </div>
+                    <div class="setting-row">
+                        <span class="setting-label">Enabled</span>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" checked onchange="updateVal('enabled', this.checked)">
+                            <span class="checkmark"></span>
+                        </label>
                     </div>
-                    <!-- More groups here -->
+                    <div class="setting-row">
+                        <span class="setting-label">Silent Aim</span>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" onchange="updateVal('silent', this.checked)">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label">Prediction</span>
+                        <span class="setting-value" id="prediction-val">0.000</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" class="slider" min="0" max="1" step="0.001" value="0.0"
+                            oninput="updateVal('prediction', this.value)">
+                    </div>
+
+                    <div class="setting-row">
+                        <span class="setting-label">Hit Position</span>
+                        <select class="dropdown" onchange="updateVal('hit-position', this.value)">
+                            <option>Closest Point</option>
+                            <option>Head</option>
+                            <option>Torso</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-row">
+                        <span class="setting-label">Hit Chance</span>
+                        <span class="setting-value" id="hitchance-val">100%</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" class="slider" min="0" max="100" step="1" value="100"
+                            oninput="updateVal('hitchance', this.value + '%')">
+                    </div>
+
+                    <div class="setting-row">
+                        <span class="setting-label">FOV</span>
+                        <span class="setting-value" id="fov-val">180</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" class="slider" min="0" max="1000" step="1" value="180"
+                            oninput="updateVal('fov', this.value)">
+                    </div>
+
+                    <div class="setting-row">
+                        <span class="setting-label">Smooth</span>
+                        <span class="setting-value" id="smooth-val">1.0</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" class="slider" min="1" max="10" step="0.1" value="1.0"
+                            oninput="updateVal('smooth', this.value)">
+                    </div>
                 </div>
+                <!-- More groups here -->
+        </div>
 
-                <!-- Footer Actions -->
-                <footer class="content-footer">
-                    <div class="config-actions">
-                        <button class="btn-secondary" onclick="saveConfig()">SAVE CONFIG</button>
-                        <button class="btn-secondary" onclick="loadConfig()">LOAD CONFIG</button>
-                    </div>
-                    <div class="app-status">
-                         <span class="status-indicator online"></span>
-                         <span>CONNECTED</span>
-                    </div>
-                </footer>
-            </section>
+        <!-- Footer Actions -->
+        <footer class="content-footer">
+            <div class="config-actions">
+                <button class="btn-secondary" onclick="saveConfig()">SAVE CONFIG</button>
+                <button class="btn-secondary" onclick="loadConfig()">LOAD CONFIG</button>
+            </div>
+            <div class="app-status">
+                <span class="status-indicator online"></span>
+                <span>CONNECTED</span>
+            </div>
+        </footer>
+        </section>
         </div>
         <!-- Manual Update Button -->
         <button class="btn-update" onclick="applyUpdate()">
@@ -164,4 +171,5 @@
     <script src="script.js"></script>
     <script>lucide.createIcons();</script>
 </body>
+
 </html>

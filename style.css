@@ -2,7 +2,8 @@
     --bg-base: #0a0a0c;
     --bg-panel: #111114;
     --bg-sidebar: #0d0d0f;
-    --accent: #ff3e3e; /* Mooze red */
+    --accent: #ff3e3e;
+    /* Mooze red */
     --accent-glow: rgba(255, 62, 62, 0.4);
     --accent-dim: rgba(255, 62, 62, 0.1);
     --text-main: #f2f2f7;
@@ -54,7 +55,7 @@ body {
     border-radius: 12px;
     width: 400px;
     text-align: center;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .brand-header {
@@ -69,7 +70,7 @@ body {
     font-family: 'Outfit', sans-serif;
     font-weight: 800;
     font-size: 24px;
-    color: var(--accent);
+    color: rgba(0, 60, 255, 0.5);
 }
 
 .brand-name {
@@ -134,7 +135,7 @@ body {
     border-radius: var(--radius-window);
     display: flex;
     overflow: hidden;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
     position: relative;
 }
 
@@ -286,8 +287,15 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .setting-row {
@@ -332,7 +340,7 @@ body {
     border-radius: 50%;
     cursor: pointer;
     border: 3px solid var(--bg-base);
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     transition: var(--transition);
 }
 
@@ -375,20 +383,22 @@ body {
 
 .checkmark {
     position: absolute;
-    top: 0; left: 0;
-    height: 20px; width: 20px;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
     background: #1a1a24;
     border: 1px solid var(--border);
     border-radius: 4px;
     transition: var(--transition);
 }
 
-.custom-checkbox:hover input ~ .checkmark {
+.custom-checkbox:hover input~.checkmark {
     border-color: var(--accent);
     background: #20202c;
 }
 
-.custom-checkbox input:checked ~ .checkmark {
+.custom-checkbox input:checked~.checkmark {
     background: var(--accent);
     border-color: var(--accent);
     box-shadow: 0 0 10px var(--accent-glow);
@@ -407,7 +417,7 @@ body {
     transform: rotate(45deg);
 }
 
-.custom-checkbox input:checked ~ .checkmark:after {
+.custom-checkbox input:checked~.checkmark:after {
     display: block;
 }
 
@@ -427,7 +437,7 @@ body {
 }
 
 .btn-secondary {
-    background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border);
     color: var(--text-main);
     padding: 8px 16px;
@@ -439,7 +449,7 @@ body {
 }
 
 .btn-secondary:hover {
-    background: rgba(255,255,255,0.06);
+    background: rgba(255, 255, 255, 0.06);
     border-color: var(--border-hover);
 }
 
@@ -460,7 +470,7 @@ body {
 
 .status-indicator.online {
     background: #00ff00;
-    box-shadow: 0 0 8px rgba(0,255,0,0.4);
+    box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
 }
 
 /* Toast (Echo Style) */
@@ -483,7 +493,7 @@ body {
     display: flex;
     align-items: center;
     position: relative;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     animation: slideIn 0.4s ease forwards;
     min-width: 250px;
 }
@@ -501,8 +511,15 @@ body {
 }
 
 @keyframes slideIn {
-    from { transform: translateX(120%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 /* Loader Screen */
@@ -526,13 +543,25 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes glow {
-    0%, 100% { box-shadow: 0 0 5px var(--accent-glow); }
-    50% { box-shadow: 0 0 20px var(--accent-glow); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 5px var(--accent-glow);
+    }
+
+    50% {
+        box-shadow: 0 0 20px var(--accent-glow);
+    }
 }
 
 .loader-text {
@@ -578,13 +607,31 @@ body {
 
 /* Animations */
 @keyframes screenExit {
-    from { opacity: 1; transform: scale(1); filter: blur(0); }
-    to { opacity: 0; transform: scale(1.05); filter: blur(10px); }
+    from {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(1.05);
+        filter: blur(10px);
+    }
 }
 
 @keyframes screenEnter {
-    from { opacity: 0; transform: scale(0.95); filter: blur(10px); }
-    to { opacity: 1; transform: scale(1); filter: blur(0); }
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+        filter: blur(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0);
+    }
 }
 
 .screen-exit {
@@ -600,6 +647,11 @@ body {
 }
 
 @keyframes spin-kf {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
