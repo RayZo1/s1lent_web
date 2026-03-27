@@ -1,5 +1,5 @@
 // Auto-detect API URL.
-const BOT_URL = "https://xx.e.jrnm.app";
+const BOT_URL = "https://snooze.f.jrnm.app";
 let API_URL = window.location.origin;
 
 if (window.location.protocol === "file:" || !window.location.hostname.includes("jrnm.app")) {
@@ -51,7 +51,7 @@ async function apiCall(endpoint, method = "GET", body = null) {
         let data;
         try {
             data = await res.json();
-        } catch(e) {
+        } catch (e) {
             data = null;
         }
 
@@ -78,11 +78,11 @@ async function login() {
     btn.textContent = "Checking...";
 
     const res = await apiCall("/login", "POST", { key });
-    
+
     if (res.status === "2fa_required") {
         btn.textContent = "Waiting for Discord...";
         showToast("2FA Required: Check your Discord DMs to confirm login.", "info", 8000);
-        
+
         // Polling for 2FA status
         const pollInterval = setInterval(async () => {
             const pollRes = await apiCall(`/login_check?auth_id=${res.auth_id}`);
@@ -100,7 +100,7 @@ async function login() {
                 btn.textContent = originalText;
             }
         }, 2000);
-        
+
         // Timeout after 5 minutes
         setTimeout(() => {
             clearInterval(pollInterval);
@@ -124,7 +124,7 @@ async function login() {
 // --- User Panel (panel.html) ---
 function getTimeRemaining(expiryStr) {
     if (!expiryStr || expiryStr === "Never" || expiryStr === "N/A") return "Lifetime";
-    
+
     let year, month, day;
     if (expiryStr.length === 8) {
         year = parseInt(expiryStr.substring(0, 4));
@@ -294,7 +294,7 @@ async function refreshUserList() {
             for (const [id, data] of Object.entries(users)) {
                 let isBanned = banned.includes(data.hwid);
                 let isSuspended = data.status === "suspended";
-                
+
                 const timeRemaining = getTimeRemaining(data.expiry);
                 let statusBadge = isBanned ? "Banned" : (isSuspended ? "Suspended" : (timeRemaining === "Expired" ? "Expired" : "Active"));
 
@@ -455,7 +455,7 @@ async function uploadUpdate() {
 
     const token = getToken();
     showToast("Uploading...", "info", 2000);
-    
+
     try {
         const response = await fetch(`${API_URL}/api/admin/upload`, {
             method: 'POST',
