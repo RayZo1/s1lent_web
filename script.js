@@ -1,9 +1,20 @@
-// Auto-detect API URL.
-const BOT_URL = "https://snooze.f.jrnm.app";
-let API_URL = window.location.origin;
+// API (Flask + bot): https://snooze.f.jrnm.app
+// Website (static UI): https://klient.vercel.app — always calls the API origin above.
+const API_ORIGIN = "https://snooze.f.jrnm.app";
 
-if (window.location.protocol === "file:" || !window.location.hostname.includes("jrnm.app")) {
-    API_URL = BOT_URL;
+let API_URL = API_ORIGIN;
+if (typeof window !== "undefined") {
+    if (window.location.protocol === "file:") {
+        API_URL = API_ORIGIN;
+    } else {
+        const host = (window.location.hostname || "").toLowerCase();
+        // Only same-origin when the page is actually served from the API host
+        if (host === "snooze.f.jrnm.app") {
+            API_URL = window.location.origin;
+        } else {
+            API_URL = API_ORIGIN;
+        }
+    }
 }
 
 // --- Custom Toast Notifications ---
