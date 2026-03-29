@@ -488,27 +488,39 @@ async function uploadUpdate() {
     const fileInput = document.getElementById('updateFile');
     if (!fileInput.files.length) return showToast("Select a file first.", "warning");
 
+    const token = getToken();
+    if (!token) return showToast("Session expired — log in again.", "error");
+
     const file = fileInput.files[0];
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
-    const token = getToken();
-    showToast("Uploading...", "info", 2000);
+    showToast("Uploading…", "info", 4000);
 
     try {
         const response = await fetch(`${API_URL}/api/admin/upload`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
             body: formData
         });
-        const res = await response.json();
-        if (res.status === "success") {
-            document.getElementById('updateUrl').value = res.url;
-            showToast("Success! URL mapped.", "success");
+
+        let data = null;
+        try {
+            data = await response.json();
+        } catch (_) {
+            showToast(`Upload failed (HTTP ${response.status}, not JSON).`, "error");
+            return;
+        }
+
+        if (response.ok && data.status === "success") {
+            const urlField = document.getElementById("updateUrl");
+            if (urlField) urlField.value = data.url || "";
+            showToast("File saved. URL is set — add a version and click Deploy.", "success", 6000);
         } else {
-            showToast(res.message || "Upload failed.", "error");
+            showToast(data.message || data.status || `Upload failed (${response.status})`, "error");
         }
     } catch (e) {
-        showToast("Connection error.", "error");
+        console.error(e);
+        showToast("Network error — check API / CORS.", "error");
     }
 }
