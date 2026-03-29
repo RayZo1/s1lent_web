@@ -31,9 +31,9 @@ function showToast(msg, type = "info", duration = 4000) {
 }
 
 // --- Auth Utilities ---
-function getToken() { return sessionStorage.getItem('klient_token'); }
-function setToken(t) { sessionStorage.setItem('klient_token', t); }
-function logout() { sessionStorage.removeItem('klient_token'); window.location.href = 'index.html'; }
+function getToken() { return sessionStorage.getItem('snooze_token'); }
+function setToken(t) { sessionStorage.setItem('snooze_token', t); }
+function logout() { sessionStorage.removeItem('snooze_token'); window.location.href = 'index.html'; }
 
 // --- API Calls ---
 async function apiCall(endpoint, method = "GET", body = null) {
