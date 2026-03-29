@@ -79,13 +79,42 @@ async function login() {
 
     const res = await apiCall("/login", "POST", { key });
 
-    if (res.status === "2fa_required") {
+    if (res.status === "pairing_required") {
+        const pairCode = res.code || "????";
         btn.textContent = "Waiting for Discord...";
-        showToast("2FA Required: Check your Discord DMs to confirm login.", "info", 8000);
+        showToast(`No Discord account on file for this key. In the server, run !link and enter: ${pairCode}`, "info", 12000);
 
-        // Polling for 2FA status
         const pollInterval = setInterval(async () => {
-            const pollRes = await apiCall(`/login_check?auth_id=${res.auth_id}`);
+            const pollRes = await apiCall(`/login_check?auth_id=${encodeURIComponent(res.auth_id)}`);
+            if (pollRes.status === "success") {
+                clearInterval(pollInterval);
+                setToken(pollRes.token);
+                showToast("Linked — you're in.", "success");
+                setTimeout(() => {
+                    window.location.href = pollRes.role === "admin" ? "admin.html" : "panel.html";
+                }, 1000);
+            } else if (pollRes.status === "denied" || pollRes.status === "error") {
+                clearInterval(pollInterval);
+                showToast(pollRes.message || "Link failed", "error");
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }, 2000);
+
+        setTimeout(() => {
+            clearInterval(pollInterval);
+            if (btn.disabled) {
+                showToast("Link timed out. Try again.", "warning");
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }, 300000);
+    } else if (res.status === "2fa_required") {
+        btn.textContent = "Waiting for Discord...";
+        showToast("2FA: confirm the login in your Discord DMs.", "info", 8000);
+
+        const pollInterval = setInterval(async () => {
+            const pollRes = await apiCall(`/login_check?auth_id=${encodeURIComponent(res.auth_id)}`);
             if (pollRes.status === "success") {
                 clearInterval(pollInterval);
                 setToken(pollRes.token);
@@ -95,17 +124,16 @@ async function login() {
                 }, 1000);
             } else if (pollRes.status === "denied" || pollRes.status === "error") {
                 clearInterval(pollInterval);
-                showToast(pollRes.message || "2FA Failed", "error");
+                showToast(pollRes.message || "2FA failed", "error");
                 btn.disabled = false;
                 btn.textContent = originalText;
             }
         }, 2000);
 
-        // Timeout after 5 minutes
         setTimeout(() => {
             clearInterval(pollInterval);
             if (btn.disabled) {
-                showToast("2FA Timed out.", "warning");
+                showToast("2FA timed out.", "warning");
                 btn.disabled = false;
                 btn.textContent = originalText;
             }
