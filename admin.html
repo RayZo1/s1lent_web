@@ -24,6 +24,9 @@
             <div class="input-group">
                 <input type="text" id="giveLicensePrefix" class="input-field" placeholder="Prefix" value="">
             </div>
+            <div class="input-group">
+                <input type="text" id="giveLicenseHWID" class="input-field" placeholder="HWID (Optional)" value="UNLINKED">
+            </div>
             <div class="modal-actions" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                 <button type="button" class="btn-primary btn-danger" onclick="closeGiveLicenseModal()"
                     style="margin: 0;">Cancel</button>
@@ -73,6 +76,9 @@
                     </div>
                     <div class="input-group">
                         <input type="text" id="genPrefix" class="input-field" placeholder="Prefix" value="">
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="genHWID" class="input-field" placeholder="HWID (Optional)" value="UNLINKED">
                     </div>
                     <button class="btn-primary" onclick="generateLicense()">Create</button>
                 </div>

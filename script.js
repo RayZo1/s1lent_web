@@ -86,7 +86,7 @@ async function login() {
     const btn = document.querySelector('.login-form button');
     const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = "Checking...";
+    btn.textContent = "Checking ->";
 
     const res = await apiCall("/login", "POST", { key });
 
@@ -442,8 +442,9 @@ async function confirmGiveLicense() {
     }
     const days = parseInt(document.getElementById("giveLicenseDays")?.value || "30", 10);
     const prefix = document.getElementById("giveLicensePrefix")?.value || "";
+    const hwid = document.getElementById("giveLicenseHWID")?.value || "UNLINKED";
     closeGiveLicenseModal();
-    await takeAction("give_license", target, { days, prefix });
+    await takeAction("give_license", target, { days, prefix, hwid });
 }
 
 function resetHWID(uId) {
@@ -465,9 +466,10 @@ function filterUsers() {
 async function generateLicense() {
     const days = parseInt(document.getElementById('genDays').value || "30", 10);
     const prefix = document.getElementById('genPrefix').value || "";
-    const res = await apiCall("/admin/create_license", "POST", { days, prefix });
+    const hwid = document.getElementById('genHWID').value || "UNLINKED";
+    const res = await apiCall("/admin/create_license", "POST", { days, prefix, hwid });
     if (res.status === "success") {
-        showToast(`Created: ${res.license}`, "success", 7000);
+        showToast(`Created: ${res.license}\nExpiry: ${res.expiry}`, "success", 7000);
         refreshAdminStats();
         refreshUserList();
     } else showToast(res.message || "Failure.", "error");
