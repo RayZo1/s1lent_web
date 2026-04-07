@@ -1,6 +1,6 @@
-// API (Flask + bot): https://Ace.f.jrnm.app
+// API (Flask + bot): https://ace.g.jrnm.app
 // Website (static UI): https://klient.vercel.app — always calls the API origin above.
-const API_ORIGIN = "https://Ace.f.jrnm.app";
+const API_ORIGIN = "https://ace.g.jrnm.app";
 
 let API_URL = API_ORIGIN;
 if (typeof window !== "undefined") {
@@ -9,7 +9,7 @@ if (typeof window !== "undefined") {
     } else {
         const host = (window.location.hostname || "").toLowerCase();
         // Only same-origin when the page is actually served from the API host
-        if (host === "Ace.f.jrnm.app") {
+        if (host === "ace.g.jrnm.app") {
             API_URL = window.location.origin;
         } else {
             API_URL = API_ORIGIN;
