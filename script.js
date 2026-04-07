@@ -1,6 +1,6 @@
-// API (Flask + bot): https://snooze.f.jrnm.app
+// API (Flask + bot): https://Ace.f.jrnm.app
 // Website (static UI): https://klient.vercel.app — always calls the API origin above.
-const API_ORIGIN = "https://snooze.f.jrnm.app";
+const API_ORIGIN = "https://Ace.f.jrnm.app";
 
 let API_URL = API_ORIGIN;
 if (typeof window !== "undefined") {
@@ -9,7 +9,7 @@ if (typeof window !== "undefined") {
     } else {
         const host = (window.location.hostname || "").toLowerCase();
         // Only same-origin when the page is actually served from the API host
-        if (host === "snooze.f.jrnm.app") {
+        if (host === "Ace.f.jrnm.app") {
             API_URL = window.location.origin;
         } else {
             API_URL = API_ORIGIN;
@@ -42,9 +42,9 @@ function showToast(msg, type = "info", duration = 4000) {
 }
 
 // --- Auth Utilities ---
-function getToken() { return sessionStorage.getItem('snooze_token'); }
-function setToken(t) { sessionStorage.setItem('snooze_token', t); }
-function logout() { sessionStorage.removeItem('snooze_token'); window.location.href = 'index.html'; }
+function getToken() { return sessionStorage.getItem('Ace_token'); }
+function setToken(t) { sessionStorage.setItem('Ace_token', t); }
+function logout() { sessionStorage.removeItem('Ace_token'); window.location.href = 'index.html'; }
 
 // --- API Calls ---
 async function apiCall(endpoint, method = "GET", body = null) {
@@ -442,9 +442,8 @@ async function confirmGiveLicense() {
     }
     const days = parseInt(document.getElementById("giveLicenseDays")?.value || "30", 10);
     const prefix = document.getElementById("giveLicensePrefix")?.value || "";
-    const hwid = document.getElementById("giveLicenseHWID")?.value || "UNLINKED";
     closeGiveLicenseModal();
-    await takeAction("give_license", target, { days, prefix, hwid });
+    await takeAction("give_license", target, { days, prefix });
 }
 
 function resetHWID(uId) {
@@ -466,10 +465,9 @@ function filterUsers() {
 async function generateLicense() {
     const days = parseInt(document.getElementById('genDays').value || "30", 10);
     const prefix = document.getElementById('genPrefix').value || "";
-    const hwid = document.getElementById('genHWID').value || "UNLINKED";
-    const res = await apiCall("/admin/create_license", "POST", { days, prefix, hwid });
+    const res = await apiCall("/admin/create_license", "POST", { days, prefix });
     if (res.status === "success") {
-        showToast(`Created: ${res.license}\nExpiry: ${res.expiry}`, "success", 7000);
+        showToast(`Created: ${res.license}`, "success", 7000);
         refreshAdminStats();
         refreshUserList();
     } else showToast(res.message || "Failure.", "error");
