@@ -3,30 +3,572 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ace.fun | Login</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <title>Ace — Authentication</title>
+    <meta name="description" content="Ace client authentication portal.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* ─── Login Page Overrides ─────────────────────────────── */
+        body {
+            background: #050507;
+            overflow: hidden;
+        }
+
+        /* animated noise grain */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            opacity: 0.35;
+            pointer-events: none;
+            z-index: 0;
+            animation: grainShift 8s steps(1) infinite;
+        }
+
+        @keyframes grainShift {
+            0%   { transform: translate(0, 0); }
+            10%  { transform: translate(-2%, -3%); }
+            20%  { transform: translate(3%, 1%); }
+            30%  { transform: translate(-1%, 4%); }
+            40%  { transform: translate(4%, -2%); }
+            50%  { transform: translate(-3%, 2%); }
+            60%  { transform: translate(2%, -4%); }
+            70%  { transform: translate(-4%, 1%); }
+            80%  { transform: translate(1%, 3%); }
+            90%  { transform: translate(-2%, -1%); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* ambient glow blobs */
+        .glow-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .glow-blob-1 {
+            width: 480px;
+            height: 480px;
+            background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%);
+            top: -120px;
+            right: -100px;
+            animation: blobFloat1 12s ease-in-out infinite;
+        }
+        .glow-blob-2 {
+            width: 360px;
+            height: 360px;
+            background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);
+            bottom: -80px;
+            left: -80px;
+            animation: blobFloat2 15s ease-in-out infinite;
+        }
+        @keyframes blobFloat1 {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            50%       { transform: translate(-20px, 30px) scale(1.05); }
+        }
+        @keyframes blobFloat2 {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            50%       { transform: translate(25px, -20px) scale(1.08); }
+        }
+
+        /* ─── Card ─────────────────────────────────────────────── */
+        .auth-scene {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(10,10,14,0.85);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 3rem 2.5rem 2.5rem;
+            box-shadow:
+                0 0 0 1px rgba(59,130,246,0.06),
+                0 24px 48px rgba(0,0,0,0.7),
+                inset 0 1px 0 rgba(255,255,255,0.04);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(16px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* logo mark */
+        .auth-logomark {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #3b82f6 0%, #6d28d9 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 0 24px rgba(59,130,246,0.35);
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+        @keyframes logoPulse {
+            0%, 100% { box-shadow: 0 0 24px rgba(59,130,246,0.35); }
+            50%       { box-shadow: 0 0 36px rgba(59,130,246,0.55); }
+        }
+        .auth-logomark svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        .auth-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #f0f0f5;
+            text-align: center;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.4rem;
+        }
+
+        .auth-subtitle {
+            font-size: 0.85rem;
+            color: #5a5a6e;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            letter-spacing: 0.01em;
+        }
+
+        /* ─── Terminal Input ────────────────────────────────────── */
+        .terminal-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: #0c0c10;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 0 16px;
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* shimmer sweep on focus */
+        .terminal-row::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.04) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0s;
+            pointer-events: none;
+        }
+        .terminal-row:focus-within::before {
+            transform: translateX(100%);
+            transition: transform 0.6s ease;
+        }
+
+        .terminal-row:focus-within {
+            border-color: rgba(59,130,246,0.5);
+            background: #0f0f14;
+            box-shadow:
+                0 0 0 3px rgba(59,130,246,0.12),
+                0 0 20px rgba(59,130,246,0.1);
+        }
+
+        .terminal-row.state-error {
+            border-color: rgba(239,68,68,0.5) !important;
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.12), 0 0 20px rgba(239,68,68,0.1) !important;
+            animation: shakeRow 0.4s cubic-bezier(0.36,0.07,0.19,0.97);
+        }
+        @keyframes shakeRow {
+            0%,100% { transform: translateX(0); }
+            15%     { transform: translateX(-5px); }
+            30%     { transform: translateX(5px); }
+            45%     { transform: translateX(-4px); }
+            60%     { transform: translateX(4px); }
+            75%     { transform: translateX(-2px); }
+            90%     { transform: translateX(2px); }
+        }
+        .terminal-row.state-success {
+            border-color: rgba(16,185,129,0.5) !important;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.12), 0 0 20px rgba(16,185,129,0.1) !important;
+        }
+
+        .term-prefix {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            color: #3b82f6;
+            white-space: nowrap;
+            user-select: none;
+            padding: 16px 10px 16px 0;
+            opacity: 0.9;
+            letter-spacing: 0.01em;
+            flex-shrink: 0;
+        }
+
+        /* blinking cursor after prefix */
+        .term-cursor {
+            display: inline-block;
+            width: 7px;
+            height: 14px;
+            background: #3b82f6;
+            border-radius: 1px;
+            margin-right: 8px;
+            flex-shrink: 0;
+            animation: blink 1.1s step-end infinite;
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+        .terminal-row:focus-within .term-cursor {
+            opacity: 0;  /* hide when user starts typing */
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 0.85; }
+            50%       { opacity: 0; }
+        }
+
+        #licenseKey {
+            flex: 1;
+            min-width: 0;
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 0.92rem !important;
+            color: #e0e0ea !important;
+            padding: 16px 0 !important;
+            letter-spacing: 0.12em !important;
+            -webkit-text-security: disc;
+            transform: none !important;
+            width: 100% !important;
+            caret-color: #3b82f6;
+        }
+        #licenseKey::placeholder {
+            color: #2a2a38;
+            letter-spacing: 0.05em;
+            font-size: 0.82rem;
+            -webkit-text-security: none;
+        }
+        /* Firefox fallback */
+        #licenseKey[type="password"] { letter-spacing: 0.18em !important; }
+
+        /* char count badge */
+        .char-count {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: #2e2e40;
+            white-space: nowrap;
+            padding-left: 8px;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+        .terminal-row:focus-within .char-count {
+            color: #404055;
+        }
+
+        /* ─── Login Button ──────────────────────────────────────── */
+        .auth-actions {
+            margin-top: 1.25rem;
+        }
+
+        #loginBtn {
+            width: 100%;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(37,99,235,0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        #loginBtn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        #loginBtn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(37,99,235,0.4);
+        }
+        #loginBtn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(37,99,235,0.2);
+        }
+        #loginBtn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+        }
+
+        .btn-spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        #loginBtn.loading .btn-spinner { display: block; }
+        #loginBtn.loading .btn-label { opacity: 0.6; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ─── Footer ────────────────────────────────────────────── */
+        .auth-footer {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .auth-footer a {
+            font-size: 0.8rem;
+            color: #3a3a50;
+            text-decoration: none;
+            transition: color 0.2s;
+            letter-spacing: 0.01em;
+        }
+        .auth-footer a:hover { color: #6b6b88; }
+
+        /* ─── Status text ───────────────────────────────────────── */
+        .auth-status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            min-height: 1.2em;
+            margin-top: 0.6rem;
+            padding-left: 2px;
+            letter-spacing: 0.02em;
+            transition: color 0.2s, opacity 0.2s;
+            opacity: 0;
+        }
+        .auth-status.visible { opacity: 1; }
+        .auth-status.ok  { color: #10b981; }
+        .auth-status.err { color: #ef4444; }
+        .auth-status.info { color: #3b82f6; }
+    </style>
 </head>
 <body>
+
+    <!-- Ambient blobs -->
+    <div class="glow-blob glow-blob-1"></div>
+    <div class="glow-blob glow-blob-2"></div>
+
+    <!-- Toast container -->
     <div id="toast-container"></div>
-    <div class="background-mesh"></div>
-    <main class="login-wrapper">
-        <div class="login-card">
-            <div class="brand-header">
-                <!-- Brand title or logo can go here if needed -->
+
+    <div class="auth-scene">
+        <div class="auth-card">
+
+            <!-- Logo -->
+            <div class="auth-logomark">
+                <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             </div>
-            <p class="subtitle">Ace.fun</p>
-            <form class="login-form" id="loginForm" novalidate>
-                <div class="input-group">
-                    <input type="password" id="licenseKey" placeholder="Enter key" autocomplete="off" spellcheck="false" required>
-                </div>
-                <button type="button" class="btn-primary" onclick="login()"> -> Login </button>
-            </form>
-            <div class="support-links">
-                <a href="https://discord.gg/F6GVM27vTm" target="_blank" class="text-link">Need a license? Join our Discord</a>
+
+            <h1 class="auth-title">Authentication</h1>
+            <p class="auth-subtitle">Enter your license key to continue</p>
+
+            <!-- Terminal input row -->
+            <div class="terminal-row" id="terminalRow">
+                <span class="term-prefix">[?] License:</span>
+                <span class="term-cursor" id="termCursor"></span>
+                <input
+                    type="password"
+                    id="licenseKey"
+                    placeholder="••••••••••••••••"
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    aria-label="License key"
+                    maxlength="80"
+                >
+                <span class="char-count" id="charCount">0</span>
             </div>
+
+            <div class="auth-status" id="authStatus"></div>
+
+            <div class="auth-actions">
+                <button id="loginBtn" type="button" onclick="doLogin()">
+                    <div class="btn-spinner"></div>
+                    <span class="btn-label">Authenticate →</span>
+                </button>
+            </div>
+
+            <div class="auth-footer">
+                <a href="https://discord.gg/F6GVM27vTm" target="_blank" rel="noopener">Need a key? Join the Discord ↗</a>
+            </div>
+
         </div>
-    </main>
+    </div>
+
     <script src="script.js"></script>
+    <script>
+        /* ── Char counter & cursor hide ─────────────────────── */
+        const input      = document.getElementById('licenseKey');
+        const charCount  = document.getElementById('charCount');
+        const termCursor = document.getElementById('termCursor');
+        const termRow    = document.getElementById('terminalRow');
+        const statusEl   = document.getElementById('authStatus');
+        const loginBtn   = document.getElementById('loginBtn');
+
+        input.addEventListener('input', () => {
+            const len = input.value.length;
+            charCount.textContent = len;
+            // hide blinking cursor once typing starts
+            termCursor.style.display = len > 0 ? 'none' : '';
+            // clear status on new input
+            setStatus('', '');
+            termRow.classList.remove('state-error', 'state-success');
+        });
+
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') doLogin();
+        });
+
+        /* ── Status helper ──────────────────────────────────── */
+        function setStatus(msg, type) {
+            statusEl.textContent = msg;
+            statusEl.className = 'auth-status' + (msg ? ' visible ' + type : '');
+        }
+
+        /* ── Reset helper ───────────────────────────────────── */
+        function resetInput() {
+            input.value = '';
+            charCount.textContent = '0';
+            termCursor.style.display = '';
+            termRow.classList.remove('state-error', 'state-success');
+        }
+
+        /* ── Main login flow ────────────────────────────────── */
+        async function doLogin() {
+            const key = input.value.trim();
+            if (!key) {
+                termRow.classList.add('state-error');
+                setStatus('[!] License key cannot be empty.', 'err');
+                setTimeout(() => { termRow.classList.remove('state-error'); setStatus('',''); }, 2200);
+                input.focus();
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.classList.add('loading');
+            setStatus('[~] Verifying...', 'info');
+
+            const res = await apiCall('/login', 'POST', { key });
+
+            loginBtn.disabled = false;
+            loginBtn.classList.remove('loading');
+
+            if (res.status === 'pairing_required') {
+                const pairCode = res.code || '????';
+                loginBtn.disabled = true;
+                setStatus(`[~] Waiting for Discord link — code: ${pairCode}`, 'info');
+                showToast(`Run !link in the server and enter: ${pairCode}`, 'info', 12000);
+                const pollInterval = setInterval(async () => {
+                    const pollRes = await apiCall(`/login_check?auth_id=${encodeURIComponent(res.auth_id)}`);
+                    if (pollRes.status === 'success') {
+                        clearInterval(pollInterval);
+                        termRow.classList.add('state-success');
+                        setStatus('[+] Linked! Redirecting...', 'ok');
+                        setToken(pollRes.token);
+                        setTimeout(() => {
+                            window.location.href = pollRes.role === 'admin' ? 'admin.html' : 'panel.html';
+                        }, 900);
+                    } else if (pollRes.status === 'denied' || pollRes.status === 'error') {
+                        clearInterval(pollInterval);
+                        termRow.classList.add('state-error');
+                        setStatus(`[!] ${pollRes.message || 'Link failed.'}`, 'err');
+                        showToast(pollRes.message || 'Link failed', 'error');
+                        loginBtn.disabled = false;
+                        setTimeout(() => { termRow.classList.remove('state-error'); resetInput(); }, 2200);
+                    }
+                }, 2000);
+                setTimeout(() => {
+                    clearInterval(pollInterval);
+                    if (loginBtn.disabled) {
+                        termRow.classList.add('state-error');
+                        setStatus('[!] Link timed out. Try again.', 'err');
+                        showToast('Link timed out.', 'warning');
+                        loginBtn.disabled = false;
+                        setTimeout(() => { termRow.classList.remove('state-error'); resetInput(); }, 2200);
+                    }
+                }, 300000);
+
+            } else if (res.status === '2fa_required') {
+                loginBtn.disabled = true;
+                setStatus('[~] Waiting for Discord 2FA...', 'info');
+                showToast('Check your Discord DMs to approve the login.', 'info', 8000);
+                const pollInterval = setInterval(async () => {
+                    const pollRes = await apiCall(`/login_check?auth_id=${encodeURIComponent(res.auth_id)}`);
+                    if (pollRes.status === 'success') {
+                        clearInterval(pollInterval);
+                        termRow.classList.add('state-success');
+                        setStatus('[+] 2FA confirmed! Redirecting...', 'ok');
+                        setToken(pollRes.token);
+                        setTimeout(() => {
+                            window.location.href = pollRes.role === 'admin' ? 'admin.html' : 'panel.html';
+                        }, 900);
+                    } else if (pollRes.status === 'denied' || pollRes.status === 'error') {
+                        clearInterval(pollInterval);
+                        termRow.classList.add('state-error');
+                        setStatus(`[!] ${pollRes.message || '2FA denied.'}`, 'err');
+                        loginBtn.disabled = false;
+                        setTimeout(() => { termRow.classList.remove('state-error'); resetInput(); }, 2200);
+                    }
+                }, 2000);
+                setTimeout(() => {
+                    clearInterval(pollInterval);
+                    if (loginBtn.disabled) {
+                        termRow.classList.add('state-error');
+                        setStatus('[!] 2FA timed out.', 'err');
+                        loginBtn.disabled = false;
+                        setTimeout(() => { termRow.classList.remove('state-error'); resetInput(); }, 2200);
+                    }
+                }, 300000);
+
+            } else if (res.status === 'success' || res.success === true) {
+                termRow.classList.add('state-success');
+                setStatus('[+] Authenticated. Redirecting...', 'ok');
+                setToken(res.token);
+                setTimeout(() => {
+                    window.location.href = res.role === 'admin' ? 'admin.html' : 'panel.html';
+                }, 800);
+
+            } else {
+                // failure — shake, show error, auto reset
+                termRow.classList.add('state-error');
+                setStatus(`[!] ${res.message || 'Invalid license key.'}`, 'err');
+                showToast(res.message || 'Invalid license key.', 'error');
+                setTimeout(() => {
+                    termRow.classList.remove('state-error');
+                    resetInput();
+                    input.focus();
+                }, 1800);
+            }
+        }
+    </script>
 </body>
 </html>
