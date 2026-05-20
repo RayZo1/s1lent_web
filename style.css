@@ -34,52 +34,12 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* Terminal Input Group styling to match C++ console window */
-.terminal-input-group {
-    display: flex;
-    align-items: center;
-    background: var(--bg-input);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 0 20px;
-    width: 100%;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.terminal-input-group:focus-within {
-    border-color: var(--brand-primary);
-    box-shadow: 0 0 12px rgba(59, 130, 246, 0.6), 0 0 0 3px var(--focus-ring);
-    background: #1a1a24;
-    transform: translateY(-2px);
-}
-
-.terminal-prefix {
-    font-family: monospace;
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    white-space: pre;
-    user-select: none;
-}
-
-.terminal-input-group input[type="password"] {
-    flex: 1;
-    width: auto !important;
-    min-width: 0 !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 14px 0 14px 8px !important;
-    text-align: left !important;
-    font-family: monospace !important;
-    font-size: 1.1rem !important;
-    color: var(--text-primary) !important;
-    outline: none !important;
-    margin: 0 !important;
-    transform: none !important;
-    -webkit-text-security: asterisk !important;
-}
-
-.terminal-input-group input[type="password"]::placeholder {
+input[type="password"]::placeholder {
     color: #4a4a55;
     letter-spacing: 0.02em;
+}
+
+input[type="password"] {
+    -webkit-text-security: asterisk !important;
+    font-family: monospace !important;
 }
