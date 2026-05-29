@@ -1,1 +1,278 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Ace.fun | User Panel</title> <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"> <link rel="stylesheet" href="style.css"> </head> <body> <div id="toast-container"></div> <div class="background-mesh"></div> <main class="panel-wrapper"> <div class="content-card" style="display: none;" id="contentBox"> <header class="header"> <div class="brand-group"> <span class="brand-name" style="font-weight: 700;">Ace.fun</span> </div> <button class="btn-primary btn-sm btn-danger" onclick="logout()" style="width: auto; margin: 0;">Logout</button> </header> <div class="admin-grid"> <div class="card full-width"> <div class="user-list"> <div class="user-item"> <div class="user-info"> <span class="user-sub">License</span> <span class="user-main" id="p_license">---- ---- ---- ----</span> </div> </div> <div class="user-item"> <div class="user-info"> <span class="user-sub">License Timer</span> <span class="user-main" id="p_expiry">-- days</span> </div> </div> <div class="user-item" id="hwid-row"> <div class="user-info"> <span class="user-sub">HWID</span> <span class="user-main" style="font-family: monospace; font-size: 0.8rem;" id="p_hwid">Not Linked</span> </div> </div> <div class="user-item"> <div class="user-info"> <span class="user-sub">Discord ID</span> <span class="user-main" id="p_discord">Not Linked</span> </div> </div> </div> </div> <div class="card"> <h3>Download</h3> <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">Get the latest version.</p> <button class="btn-primary" onclick="downloadClient()">Download Loader</button> </div> <div class="card"> <h3>Support</h3> <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">Join our community for updates and support.</p> <a href="https://discord.gg/F6GVM27vTm" target="_blank" style="text-decoration: none;"> <button class="btn-primary">Discord Server</button> </a> </div> </div> </div> </main> <script src="script.js"></script> <script> window.addEventListener('load', () => { initUserPanel(); }); </script> </body> </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ace — Dashboard</title>
+  <meta name="description" content="Ace user dashboard.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <p>loading session...</p>
+</div>
+
+<div id="toast-container"></div>
+
+<div class="scene-bg"></div>
+
+<div class="shell" id="appShell" style="display:none;">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <span class="sidebar-name">Ace</span>
+    </div>
+
+    <span class="nav-section-label">Menu</span>
+
+    <button class="nav-item active" onclick="showSection('overview')" id="nav-overview">
+      <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      Overview
+    </button>
+
+    <button class="nav-item" onclick="showSection('account')" id="nav-account">
+      <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+      Account
+    </button>
+
+    <div class="nav-spacer"></div>
+
+    <span class="nav-section-label">Links</span>
+    <button class="nav-item" onclick="window.open('https://discord.gg/F6GVM27vTm','_blank')">
+      <svg class="nav-item-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.003.04.023.078.05.101a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+      </svg>
+      Discord
+    </button>
+
+    <div class="divider"></div>
+
+    <button class="nav-item nav-logout" onclick="logout()">
+      <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Logout
+    </button>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <span class="topbar-title" id="topbarTitle">Overview</span>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-user">
+        <div class="topbar-avatar" id="userAvatar">A</div>
+        <span id="userNameTop" style="font-size:0.8rem;color:var(--text-2);">—</span>
+      </div>
+    </header>
+
+    <!-- ── Overview ── -->
+    <section class="page-content" id="section-overview">
+      <div class="page-header">
+        <h1 class="page-title">Welcome back</h1>
+        <p class="page-desc" id="welcomeDesc">Your session is active.</p>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="grid-3" style="margin-bottom:1.5rem;">
+        <div class="stat-card">
+          <span class="stat-label">Status</span>
+          <span class="stat-value" style="font-size:1.1rem;margin-top:4px;" id="stat-status">
+            <span class="badge badge-green" style="font-size:0.75rem;">● Active</span>
+          </span>
+          <div class="stat-icon" style="background:var(--green-dim);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Time Remaining</span>
+          <span class="stat-value" style="font-size:1.25rem;" id="stat-expiry">—</span>
+          <div class="stat-icon" style="background:var(--blue-dim);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Discord</span>
+          <span class="stat-value" style="font-size:0.9rem;margin-top:4px;" id="stat-discord">Not linked</span>
+          <div class="stat-icon" style="background:var(--purple-dim);">
+            <svg viewBox="0 0 24 24" fill="#a78bfa" style="width:18px;height:18px;">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.003.04.023.078.05.101a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="grid-2">
+        <div class="card card-glow">
+          <div class="section-header" style="margin-bottom:0.75rem;">
+            <div>
+              <div class="section-title">Download Loader</div>
+              <div class="section-sub">Get the latest version of Ace</div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;">
+            <button class="btn btn-primary btn-full" onclick="downloadClient()" id="downloadBtn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download
+            </button>
+          </div>
+        </div>
+
+        <div class="card card-glow">
+          <div class="section-header" style="margin-bottom:0.75rem;">
+            <div>
+              <div class="section-title">Community</div>
+              <div class="section-sub">Support, updates &amp; announcements</div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;">
+            <a href="https://discord.gg/F6GVM27vTm" target="_blank" rel="noopener" style="text-decoration:none;">
+              <button class="btn btn-ghost btn-full">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.003.04.023.078.05.101a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+                </svg>
+                Discord Server ↗
+              </button>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Account ── -->
+    <section class="page-content" id="section-account" style="display:none;">
+      <div class="page-header">
+        <h1 class="page-title">Account</h1>
+        <p class="page-desc">Your license &amp; hardware details</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card col-span-2">
+          <div class="section-title" style="margin-bottom:1rem;">License Information</div>
+          <div class="info-row">
+            <span class="info-label">License Key</span>
+            <span class="info-value info-value-mono sensitive" id="acc-license">••••••••••••••••</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Expiry</span>
+            <span class="info-value" id="acc-expiry">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">HWID</span>
+            <span class="info-value info-value-mono sensitive" id="acc-hwid">Not linked</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Discord</span>
+            <span class="info-value" id="acc-discord">Not linked</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script src="script.js"></script>
+<script>
+  window.addEventListener('load', () => { initUserPanel(); });
+
+  let _userData = {};
+
+  function showSection(name) {
+    document.querySelectorAll('.page-content').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const sec = document.getElementById('section-' + name);
+    const nav = document.getElementById('nav-' + name);
+    if (sec) sec.style.display = 'block';
+    if (nav) nav.classList.add('active');
+    const titles = { overview: 'Overview', account: 'Account' };
+    document.getElementById('topbarTitle').textContent = titles[name] || name;
+  }
+
+  async function initUserPanel() {
+    const token = getToken();
+    if (!token) { window.location.href = 'index.html'; return; }
+
+    try {
+      const res = await apiCall('/panel');
+      if (!res || res.status === 'error' || res.error) {
+        clearToken(); window.location.href = 'index.html'; return;
+      }
+      _userData = res;
+      populatePanel(res);
+    } catch (e) {
+      clearToken(); window.location.href = 'index.html';
+    }
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('appShell').style.display = 'flex';
+  }
+
+  function populatePanel(d) {
+    const license  = d.license  || '—';
+    const expiry   = d.expiry   || null;
+    const hwid     = d.hwid     || 'Not linked';
+    const discord  = d.username || d.discord_id || 'Not linked';
+    const timeLeft = getTimeRemaining(expiry);
+    const initials = (discord && discord !== 'Not linked') ? discord[0].toUpperCase() : 'A';
+
+    document.getElementById('userAvatar').textContent  = initials;
+    document.getElementById('userNameTop').textContent = discord;
+    document.getElementById('welcomeDesc').textContent = `Logged in as ${discord}`;
+
+    document.getElementById('stat-expiry').textContent  = timeLeft;
+    document.getElementById('stat-discord').textContent = discord;
+
+    if (timeLeft === 'Expired') {
+      document.getElementById('stat-status').innerHTML = '<span class="badge badge-red" style="font-size:0.75rem;">● Expired</span>';
+    }
+
+    document.getElementById('acc-license').textContent = license;
+    document.getElementById('acc-expiry').textContent  = timeLeft;
+    document.getElementById('acc-hwid').textContent    = hwid;
+    document.getElementById('acc-discord').textContent = discord;
+  }
+
+  async function downloadClient() {
+    const btn = document.getElementById('downloadBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Fetching...';
+    try {
+      const res = await apiCall('/download');
+      if (res.url) {
+        window.open(res.url, '_blank');
+        showToast('Download started!', 'success');
+      } else {
+        showToast(res.message || 'No download available.', 'warning');
+      }
+    } catch(e) {
+      showToast('Failed to fetch download URL.', 'error');
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download';
+  }
+</script>
+</body>
+</html>

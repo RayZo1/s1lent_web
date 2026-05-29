@@ -1,1 +1,562 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Ace.fun | where shit goes down.</title> <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"> <link rel="stylesheet" href="style.css"> </head> <body> <div id="toast-container"></div> <div class="background-mesh"></div> <div id="give-license-modal" class="modal-overlay" aria-hidden="true" onclick="closeGiveLicenseModal()"> <div class="modal-box" onclick="event.stopPropagation()"> <h3 class="modal-title">Give license</h3> <p class="modal-desc">Give new license.</p> <div class="input-group"> <input type="number" id="giveLicenseDays" class="input-field" placeholder="Expiry (days)" value="30" min="1"> </div> <div class="input-group"> <input type="text" id="giveLicensePrefix" class="input-field" placeholder="Prefix" value=""> </div> <div class="modal-actions" style="display: flex; gap: 1rem; margin-top: 1.5rem;"> <button type="button" class="btn-primary btn-danger" onclick="closeGiveLicenseModal()" style="margin: 0;">Cancel</button> <button type="button" class="btn-primary" onclick="confirmGiveLicense()" style="margin: 0;">Confirm</button> </div> </div> </div> <main class="admin-wrapper"> <div class="content-card" style="display: none;" id="contentBox"> <header class="header"> <div class="brand-group"> <span class="brand-name" style="font-weight: 700;">Ace.fun</span> </div> <button class="btn-primary btn-sm btn-danger" onclick="logout()" style="width: auto; margin: 0;">Logout</button> </header> <div class="admin-grid"> <div class="card stats-card"> <h3>Stats</h3> <div class="stats-row"> <div class="stat-box"> <span class="stat-value" id="a_users">0</span> <span class="stat-label">Users</span> </div> <div class="stat-box"> <span class="stat-value" id="a_available">0</span> <span class="stat-label">Unused</span> </div> <div class="stat-box"> <span class="stat-value" id="a_bans">0</span> <span class="stat-label">Bans</span> </div> <div class="stat-box"> <span class="stat-value" id="a_version">1.0</span> <span class="stat-label">Version</span> </div> </div> </div> <div class="card"> <h3>Create Key</h3> <div class="input-group"> <input type="number" id="genDays" class="input-field" placeholder="Duration (Days)" value="30"> </div> <div class="input-group"> <input type="text" id="genPrefix" class="input-field" placeholder="Prefix" value=""> </div> <button class="btn-primary" onclick="generateLicense()">Create</button> </div> <div class="card full-width"> <div class="list-tabs"> <button type="button" class="tab-btn active" data-tab="available" onclick="switchAdminTab('available')">Keys</button> <button type="button" class="tab-btn" data-tab="users" onclick="switchAdminTab('users')">Userbase</button> <button type="button" class="tab-btn" data-tab="updates" onclick="switchAdminTab('updates')">Updates</button> </div> <div id="tab-available" class="tab-pane active"> <div class="user-list" id="adminAvailableList"> <p style="color: var(--text-secondary); font-size: 0.9rem;">Fetching active keys...</p> </div> </div> <div id="tab-users" class="tab-pane" style="display: none;"> <div class="input-group" style="margin-bottom: 1.5rem;"> <input type="text" id="userSearch" class="input-field"  placeholder="Search" onkeyup="filterUsers()"> </div> <div class="user-list" id="adminUserList"> <p style="color: var(--text-secondary); font-size: 0.9rem;">Hold on mate...</p> </div> </div> <div id="tab-updates" class="tab-pane" style="display: none;"> <div style="max-width: 500px; margin: 1rem auto; display: flex; flex-direction: column; gap: 1.5rem;"> <div class="card" style="border-top: 3px solid var(--royal-blue); padding: 2rem;"> <h3 style="margin-bottom: 0.5rem;">Update Deployer</h3> <div class="input-group"> <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">Version</label> <input type="text" id="updateVersion" class="input-field" placeholder="" > </div> <div class="input-group" style="margin-top: 1rem;"> <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">Folder</label> <div style="display: flex; gap: 0.5rem;"> <input type="file" id="updateFile" class="input-field" style="flex: 1; padding: 0.6rem;"> <button class="btn-primary btn-sm" onclick="uploadUpdate()" style="width: auto; margin: 0;">Upload</button> </div> </div> <div class="input-group" style="margin-top: 1rem;"> <label class="user-sub" style="margin-bottom: 0.5rem; display: block;">URL</label> <input type="text" id="updateUrl" class="input-field" placeholder="" > </div> <button class="btn-primary" onclick="updateProduct()" style="background: var(--royal-blue); color: white; margin-top: 1.5rem; height: 50px;">Deploy</button> </div> </div> </div> </div> </div> </div> </main> <script src="script.js"></script> <script> window.addEventListener('load', () => { initAdminPanel(); }); </script> </body> </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ace — Admin</title>
+  <meta name="description" content="Ace admin panel.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <p>loading admin panel...</p>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- Give License Modal -->
+<div class="modal-overlay" id="giveLicenseModal" onclick="closeGiveLicenseModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">Give License</div>
+    <div class="modal-desc">Grant this user a new license for a specified duration.</div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      <div>
+        <label class="label" for="giveDays">Duration (days)</label>
+        <input type="number" id="giveDays" class="input" placeholder="30" value="30" min="1">
+      </div>
+      <div>
+        <label class="label" for="givePrefix">Prefix (optional)</label>
+        <input type="text" id="givePrefix" class="input" placeholder="e.g. VIP-">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeGiveLicenseModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmGiveLicense()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="scene-bg"></div>
+
+<div class="shell" id="appShell" style="display:none;">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <span class="sidebar-name">Ace Admin</span>
+    </div>
+
+    <span class="nav-section-label">Dashboard</span>
+
+    <button class="nav-item active" onclick="showSection('overview')" id="nav-overview">
+      <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      Overview
+    </button>
+
+    <button class="nav-item" onclick="showSection('keys')" id="nav-keys">
+      <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+      </svg>
+      Keys
+    </button>
+
+    <button class="nav-item" onclick="showSection('users')" id="nav-users">
+      <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      Users
+    </button>
+
+    <button class="nav-item" onclick="showSection('deploy')" id="nav-deploy">
+      <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+      </svg>
+      Deploy
+    </button>
+
+    <div class="nav-spacer"></div>
+
+    <div class="divider"></div>
+    <button class="nav-item nav-logout" onclick="logout()">
+      <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Logout
+    </button>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <header class="topbar">
+      <span class="topbar-title" id="topbarTitle">Overview</span>
+      <div class="topbar-spacer"></div>
+      <span class="badge badge-red" style="font-size:0.7rem;">ADMIN</span>
+    </header>
+
+    <!-- ── Overview ── -->
+    <section class="page-content" id="section-overview">
+      <div class="page-header">
+        <h1 class="page-title">Overview</h1>
+        <p class="page-desc">Platform health &amp; statistics</p>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:1.5rem;">
+        <div class="stat-card">
+          <span class="stat-label">Total Users</span>
+          <span class="stat-value" id="stat-users">—</span>
+          <div class="stat-icon" style="background:var(--blue-dim);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Unused Keys</span>
+          <span class="stat-value" id="stat-unused">—</span>
+          <div class="stat-icon" style="background:var(--green-dim);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Banned</span>
+          <span class="stat-value" id="stat-bans">—</span>
+          <div class="stat-icon" style="background:var(--red-dim);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Version</span>
+          <span class="stat-value" style="font-size:1.5rem;" id="stat-version">—</span>
+          <div class="stat-icon" style="background:var(--purple-dim);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2">
+              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick create key -->
+      <div class="grid-2">
+        <div class="card card-glow">
+          <div class="section-title" style="margin-bottom:1rem;">Quick Create Key</div>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div>
+              <label class="label" for="qDays">Duration (days)</label>
+              <input type="number" id="qDays" class="input" placeholder="30" value="30" min="1">
+            </div>
+            <div>
+              <label class="label" for="qPrefix">Prefix</label>
+              <input type="text" id="qPrefix" class="input" placeholder="Optional prefix...">
+            </div>
+            <button class="btn btn-primary btn-full" onclick="generateLicense()" id="createKeyBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Create Key
+            </button>
+          </div>
+        </div>
+
+        <div class="card card-glow">
+          <div class="section-title" style="margin-bottom:0.5rem;">Recent Activity</div>
+          <div class="section-sub" style="margin-bottom:1rem;">Last 5 actions taken</div>
+          <div id="recentActivity">
+            <div class="empty-state" style="padding:1rem 0;">
+              <div class="empty-desc">No activity recorded yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Keys ── -->
+    <section class="page-content" id="section-keys" style="display:none;">
+      <div class="page-header">
+        <h1 class="page-title">Keys</h1>
+        <p class="page-desc">Manage all license keys</p>
+      </div>
+
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Create Key</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:flex-end;">
+          <div style="flex:1;min-width:120px;">
+            <label class="label" for="genDays">Days</label>
+            <input type="number" id="genDays" class="input" placeholder="30" value="30" min="1">
+          </div>
+          <div style="flex:1;min-width:140px;">
+            <label class="label" for="genPrefix">Prefix</label>
+            <input type="text" id="genPrefix" class="input" placeholder="Optional...">
+          </div>
+          <button class="btn btn-primary" onclick="generateLicense()" style="margin-bottom:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Create
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">Available Keys</div>
+          <span class="badge badge-blue" id="keyCountBadge">0 keys</span>
+        </div>
+        <div id="keyList">
+          <div class="empty-state">
+            <div class="empty-icon">🔑</div>
+            <div class="empty-title">No keys yet</div>
+            <div class="empty-desc">Create a key above to get started.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Users ── -->
+    <section class="page-content" id="section-users" style="display:none;">
+      <div class="page-header">
+        <h1 class="page-title">Users</h1>
+        <p class="page-desc">Manage your userbase</p>
+      </div>
+
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">Userbase</div>
+          <input type="text" id="userSearch" class="input" placeholder="Search users..." style="width:220px;" oninput="filterUsers()">
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="user-table" id="userTable">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>License</th>
+                <th>HWID</th>
+                <th>Status</th>
+                <th>Last IP</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody">
+              <tr>
+                <td colspan="6" style="text-align:center;padding:2rem;color:var(--text-3);">
+                  <div class="spinner" style="margin:0 auto;"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Deploy ── -->
+    <section class="page-content" id="section-deploy" style="display:none;">
+      <div class="page-header">
+        <h1 class="page-title">Deploy</h1>
+        <p class="page-desc">Push updates to all users</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card col-span-2" style="max-width:560px;">
+          <div class="section-title" style="margin-bottom:1.25rem;">Update Deployer</div>
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div>
+              <label class="label" for="updateVersion">Version Tag</label>
+              <input type="text" id="updateVersion" class="input" placeholder="e.g. 2.1.0">
+            </div>
+            <div>
+              <label class="label" for="updateFile">Upload File</label>
+              <div style="display:flex;gap:0.75rem;align-items:center;">
+                <input type="file" id="updateFile" class="input" style="flex:1;">
+                <button class="btn btn-ghost" onclick="uploadUpdate()">Upload</button>
+              </div>
+            </div>
+            <div>
+              <label class="label" for="updateUrl">Or Direct URL</label>
+              <input type="text" id="updateUrl" class="input" placeholder="https://...">
+            </div>
+            <button class="btn btn-primary" onclick="updateProduct()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+              </svg>
+              Deploy Update
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script src="script.js"></script>
+<script>
+  window.addEventListener('load', () => { initAdminPanel(); });
+
+  const _adminState = { target: null, licenseTarget: null };
+  let _adminData = { users: {}, available: [], banned: [] };
+  let _recentActions = [];
+
+  function showSection(name) {
+    document.querySelectorAll('.page-content').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const sec = document.getElementById('section-' + name);
+    const nav = document.getElementById('nav-' + name);
+    if (sec) sec.style.display = 'block';
+    if (nav) nav.classList.add('active');
+    const titles = { overview: 'Overview', keys: 'Keys', users: 'Users', deploy: 'Deploy' };
+    document.getElementById('topbarTitle').textContent = titles[name] || name;
+  }
+
+  async function initAdminPanel() {
+    const token = getToken();
+    if (!token) { window.location.href = 'index.html'; return; }
+    await refreshAdminStats();
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('appShell').style.display = 'flex';
+  }
+
+  async function refreshAdminStats() {
+    try {
+      const res = await apiCall('/admin/stats');
+      if (!res || res.status === 'error') {
+        clearToken(); window.location.href = 'index.html'; return;
+      }
+      _adminData = res;
+      populateStats(res);
+      populateKeys(res.available || []);
+      populateUsers(res.users || {}, res.banned || []);
+    } catch(e) { console.error(e); }
+  }
+
+  async function refreshUserList() { await refreshAdminStats(); }
+
+  function populateStats(d) {
+    const users    = Object.keys(d.users || {}).length;
+    const unused   = (d.available || []).length;
+    const bans     = (d.banned || []).length;
+    const version  = d.version || '—';
+    document.getElementById('stat-users').textContent   = users;
+    document.getElementById('stat-unused').textContent  = unused;
+    document.getElementById('stat-bans').textContent    = bans;
+    document.getElementById('stat-version').textContent = version;
+  }
+
+  function populateKeys(available) {
+    const list = document.getElementById('keyList');
+    const badge = document.getElementById('keyCountBadge');
+    if (badge) badge.textContent = available.length + ' keys';
+    if (!list) return;
+    if (!available.length) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔑</div><div class="empty-title">No keys yet</div><div class="empty-desc">Create a key above to get started.</div></div>`;
+      return;
+    }
+    list.innerHTML = '';
+    available.forEach(row => {
+      const key  = row.license || row.key || String(row.id || '');
+      const days = row.days ? row.days + 'd' : '';
+      const id   = String(row.id || key).replace(/'/g, "\\'");
+      const item = document.createElement('div');
+      item.className = 'key-item';
+      item.innerHTML = `
+        <span class="key-item-code">${key}</span>
+        ${days ? `<span class="key-item-meta">${days}</span>` : ''}
+        <button class="btn btn-danger btn-xs" onclick="deleteAvailableLicense('${id}')">Delete</button>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function populateUsers(users, banned) {
+    const tbody = document.getElementById('userTableBody');
+    if (!tbody) return;
+    const entries = Object.entries(users);
+    if (!entries.length) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-3);">No users yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = '';
+    entries.forEach(([id, data]) => {
+      const isBanned   = banned.includes(data.hwid);
+      const timeLeft   = getTimeRemaining(data.expiry);
+      const isExpired  = timeLeft === 'Expired';
+      const isSuspended = data.status === 'suspended';
+      let badgeHtml = '';
+      if (isBanned)         badgeHtml = '<span class="badge badge-red">Banned</span>';
+      else if (isSuspended) badgeHtml = '<span class="badge badge-amber">Suspended</span>';
+      else if (isExpired)   badgeHtml = '<span class="badge badge-red">Expired</span>';
+      else                  badgeHtml = '<span class="badge badge-green">Active</span>';
+
+      const eId   = esc(id);
+      const eHwid = esc(data.hwid || '');
+      const tr = document.createElement('tr');
+      tr.dataset.searchText = (data.username + id + (data.license||'') + (data.hwid||'')).toLowerCase();
+      tr.innerHTML = `
+        <td>
+          <span class="col-name">${data.username || 'Unknown'}</span><br>
+          <span class="col-mono sensitive" style="font-size:0.65rem;color:var(--text-3);">${id}</span>
+        </td>
+        <td><span class="col-mono sensitive">${data.license || '—'}</span></td>
+        <td><span class="col-mono sensitive" style="font-size:0.72rem;">${data.hwid || '—'}</span></td>
+        <td>${badgeHtml}<br><span style="font-size:0.7rem;color:var(--text-3);margin-top:2px;display:block;">${timeLeft}</span></td>
+        <td><span class="col-mono sensitive" style="font-size:0.72rem;">${data.ip || 'N/A'}</span></td>
+        <td>
+          <div class="col-actions">
+            <button class="btn btn-ghost btn-xs" onclick="giveLicense('${eId}')">Give</button>
+            <button class="btn btn-danger btn-xs" onclick="takeLicense('${eId}')">Take</button>
+            <button class="btn btn-ghost btn-xs" onclick="takeAction('reset','${eId}')">Reset HW</button>
+            <button class="btn btn-success btn-xs" onclick="takeAction('unban','${eHwid}')">Unban</button>
+            <button class="btn btn-danger btn-xs" onclick="takeAction('ban','${eHwid}')">Ban</button>
+            <button class="btn btn-danger btn-xs" onclick="takeAction('wipe','${eId}')">Wipe</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function filterUsers() {
+    const q = document.getElementById('userSearch').value.toLowerCase();
+    document.querySelectorAll('#userTableBody tr').forEach(tr => {
+      tr.style.display = !q || (tr.dataset.searchText || '').includes(q) ? '' : 'none';
+    });
+  }
+
+  function esc(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+  function openGiveLicenseModal(userId) {
+    _adminState.licenseTarget = userId;
+    const m = document.getElementById('giveLicenseModal');
+    if (m) { m.classList.add('show'); m.style.display = 'flex'; }
+  }
+  function closeGiveLicenseModal() {
+    _adminState.licenseTarget = null;
+    const m = document.getElementById('giveLicenseModal');
+    if (m) { m.classList.remove('show'); m.style.display = 'none'; }
+  }
+
+  async function takeAction(action, targetOverride, extra) {
+    let target = targetOverride || _adminState.target;
+    if (!target) return showToast('No target selected.', 'warning');
+    const body = { action, target };
+    if (extra && typeof extra === 'object') Object.assign(body, extra);
+    const res = await apiCall('/admin/action', 'POST', body);
+    if (res.status === 'success') {
+      if (res.license) {
+        showToast(`${res.message}\n\nKey: ${res.license}\nExpires: ${res.expiry}`, 'success', 7000);
+      } else {
+        showToast(res.message || 'Action successful', 'success');
+      }
+      logActivity(action, target);
+      await refreshAdminStats();
+    } else {
+      showToast(res.message || 'Action failed', 'error');
+    }
+  }
+
+  function logActivity(action, target) {
+    _recentActions.unshift({ action, target, time: new Date().toLocaleTimeString() });
+    if (_recentActions.length > 5) _recentActions.pop();
+    const el = document.getElementById('recentActivity');
+    if (!el) return;
+    el.innerHTML = _recentActions.map(a => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);font-size:0.78rem;">
+        <span><span class="badge badge-blue" style="font-size:0.65rem;">${a.action}</span> <span style="color:var(--text-2);margin-left:6px;">${a.target.substring(0,16)}…</span></span>
+        <span style="color:var(--text-4);font-family:var(--font-mono);font-size:0.68rem;">${a.time}</span>
+      </div>
+    `).join('');
+  }
+
+  function giveLicense(uId)   { _adminState.target = uId; openGiveLicenseModal(uId); }
+  function takeLicense(uId)   { takeAction('take_license', uId); }
+  function deleteAvailableLicense(id) { takeAction('wipe', id); }
+  function resetHWID(uId)     { takeAction('reset', uId); }
+
+  async function confirmGiveLicense() {
+    const target = _adminState.licenseTarget || _adminState.target;
+    if (!target) { showToast('Missing target.', 'error'); return closeGiveLicenseModal(); }
+    const days   = parseInt(document.getElementById('giveDays')?.value || '30', 10);
+    const prefix = document.getElementById('givePrefix')?.value || '';
+    closeGiveLicenseModal();
+    await takeAction('give_license', target, { days, prefix });
+  }
+
+  async function generateLicense() {
+    const daysEl   = document.getElementById('genDays') || document.getElementById('qDays');
+    const prefixEl = document.getElementById('genPrefix') || document.getElementById('qPrefix');
+    const days   = parseInt(daysEl?.value || '30', 10);
+    const prefix = prefixEl?.value || '';
+    const res = await apiCall('/admin/create_license', 'POST', { days, prefix });
+    if (res.status === 'success') {
+      showToast(`Created: ${res.license}`, 'success', 7000);
+      logActivity('create_license', res.license || '—');
+      await refreshAdminStats();
+    } else showToast(res.message || 'Failed to create key.', 'error');
+  }
+
+  async function updateProduct() {
+    const version = document.getElementById('updateVersion').value.trim();
+    const url     = document.getElementById('updateUrl').value.trim();
+    if (!version) return showToast('Version tag is required.', 'warning');
+    const res = await apiCall('/admin/publish', 'POST', { version, url });
+    if (res.status === 'success') {
+      showToast('Update deployed!', 'success');
+      await refreshAdminStats();
+    } else showToast(res.message || 'Error deploying update.', 'error');
+  }
+
+  async function uploadUpdate() {
+    const fileInput = document.getElementById('updateFile');
+    if (!fileInput.files.length) return showToast('Select a file first.', 'warning');
+    const token = getToken();
+    if (!token) return showToast('Session expired — log in again.', 'error');
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    showToast('Uploading…', 'info', 4000);
+    try {
+      const response = await fetch(`${API_URL}/api/admin/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      let data = null;
+      try { data = await response.json(); } catch (_) {
+        showToast(`Upload failed (HTTP ${response.status}, not JSON).`, 'error'); return;
+      }
+      if (response.ok && data.status === 'success') {
+        const urlField = document.getElementById('updateUrl');
+        if (urlField) urlField.value = data.url || '';
+        showToast('File uploaded! Set version and click Deploy.', 'success', 6000);
+      } else {
+        showToast(data.message || `Upload failed (${response.status})`, 'error');
+      }
+    } catch(e) {
+      console.error(e);
+      showToast('Network error — check API / CORS.', 'error');
+    }
+  }
+</script>
+</body>
+</html>
