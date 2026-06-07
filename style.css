@@ -297,7 +297,7 @@ input[type="number"] { -moz-appearance: textfield; }
   margin-bottom: 1.75rem;
 }
 .sidebar-name {
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-1);
   letter-spacing: -0.02em;

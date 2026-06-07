@@ -250,20 +250,21 @@
 
   async function refreshAdminStats() {
     try {
-      var res = await apiCall('/admin/stats');
-      if (!res || res.status === 'error') { clearToken(); window.location.href = 'index.html'; return; }
-      populateStats(res);
-      populateKeys(res.available || []);
-      populateUsers(res.users || {}, res.banned || []);
+      var stats = await apiCall('/admin/stats');
+      var users = await apiCall('/admin/users');
+      if (!stats || stats.status === 'error' || !users || users.status === 'error') { clearToken(); window.location.href = 'index.html'; return; }
+      populateStats(stats);
+      populateKeys(users.available_licenses || []);
+      populateUsers(users.users || {}, users.banned || []);
     } catch(e) { console.error(e); }
   }
   async function refreshUserList() { await refreshAdminStats(); }
 
-  function populateStats(d) {
-    document.getElementById('stat-users').textContent   = Object.keys(d.users || {}).length;
-    document.getElementById('stat-unused').textContent  = (d.available || []).length;
-    document.getElementById('stat-bans').textContent    = (d.banned || []).length;
-    document.getElementById('stat-version').textContent = d.version || '—';
+  function populateStats(stats) {
+    document.getElementById('stat-users').textContent   = stats.total_users || 0;
+    document.getElementById('stat-unused').textContent  = stats.available_licenses || 0;
+    document.getElementById('stat-bans').textContent    = stats.active_bans || 0;
+    document.getElementById('stat-version').textContent = stats.version || '—';
   }
 
   function populateKeys(available) {

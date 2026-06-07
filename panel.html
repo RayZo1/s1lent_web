@@ -161,7 +161,7 @@
     var token = getToken();
     if (!token) { window.location.href = 'index.html'; return; }
     try {
-      var res = await apiCall('/panel');
+      var res = await apiCall('/user');
       if (!res || res.status === 'error') { clearToken(); window.location.href = 'index.html'; return; }
       populatePanel(res);
     } catch(e) { clearToken(); window.location.href = 'index.html'; }
