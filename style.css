@@ -358,8 +358,11 @@ input[type="number"] { -moz-appearance: textfield; }
 /* Page */
 .page-content {
   flex: 1;
-  padding: 1.75rem;
+  padding: 2rem 1.75rem;
   animation: fadeUp 0.3s ease forwards;
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
 }
 .page-header { margin-bottom: 1.75rem; }
 .page-title  { font-size: 1.25rem; font-weight: 700; color: var(--text-1); letter-spacing: -0.03em; }
