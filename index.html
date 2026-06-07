@@ -257,7 +257,7 @@
     loginBtn.classList.add('loading');
     setStatus('[~] verifying...', 'info');
 
-    var res = await apiCall('/login', 'POST', { key: key });
+    var res = await apiCall('/web/login', 'POST', { license: key });
 
     loginBtn.disabled = false;
     loginBtn.classList.remove('loading');
@@ -307,7 +307,7 @@
           setStatus('[+] confirmed! redirecting...', 'ok');
           setToken(pollRes.token);
           setTimeout(function() {
-            window.location.href = pollRes.role === 'admin' ? 'admin.html' : 'panel.html';
+            window.location.href = pollRes.admin ? 'admin.html' : 'panel.html';
           }, 900);
         } else if (pollRes.status === 'denied' || pollRes.status === 'error') {
           clearInterval(poll2);
@@ -323,7 +323,7 @@
       setStatus('[+] authenticated. redirecting...', 'ok');
       setToken(res.token);
       setTimeout(function() {
-        window.location.href = res.role === 'admin' ? 'admin.html' : 'panel.html';
+        window.location.href = res.admin ? 'admin.html' : 'panel.html';
       }, 800);
 
     } else {

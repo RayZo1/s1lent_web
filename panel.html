@@ -161,7 +161,7 @@
     var token = getToken();
     if (!token) { window.location.href = 'index.html'; return; }
     try {
-      var res = await apiCall('/user');
+      var res = await apiCall('/web/me');
       if (!res || res.status === 'error') { clearToken(); window.location.href = 'index.html'; return; }
       populatePanel(res);
     } catch(e) { clearToken(); window.location.href = 'index.html'; }
@@ -196,10 +196,30 @@
     btn.disabled = true;
     btn.textContent = 'Fetching...';
     try {
-      var res = await apiCall('/download');
-      if (res.url) { window.open(res.url, '_blank'); showToast('Download started.', 'success'); }
-      else showToast(res.message || 'No download available.', 'warning');
-    } catch(e) { showToast('Failed to fetch download.', 'error'); }
+      var res = await fetch(API_URL + '/api/web/download', {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (res.ok) {
+        var blob = await res.blob();
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        var cd = res.headers.get('content-disposition');
+        var filename = 'loader.zip';
+        if (cd && cd.indexOf('filename=') !== -1) {
+          filename = cd.split('filename=')[1].replace(/"/g, '');
+        }
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showToast('Download started.', 'success');
+      } else {
+        showToast('No download available.', 'warning');
+      }
+    } catch (e) {
+      showToast('Failed to fetch download.', 'error');
+    }
     btn.disabled = false;
     btn.textContent = 'Download';
   }

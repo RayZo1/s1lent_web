@@ -250,12 +250,13 @@
 
   async function refreshAdminStats() {
     try {
-      var stats = await apiCall('/admin/stats');
-      var users = await apiCall('/admin/users');
+      var stats = await apiCall('/admin/server-config');
+      var users = await apiCall('/admin/licenses');
       if (!stats || stats.status === 'error' || !users || users.status === 'error') { clearToken(); window.location.href = 'index.html'; return; }
       populateStats(stats);
-      populateKeys(users.available_licenses || []);
-      populateUsers(users.users || {}, users.banned || []);
+      var allLic = users.licenses || [];
+      populateKeys(allLic.filter(function(l){return !l.hwid || l.hwid==='Unclaimed';}));
+      populateUsers(allLic.filter(function(l){return l.hwid && l.hwid!=='Unclaimed';}), []);
     } catch(e) { console.error(e); }
   }
   async function refreshUserList() { await refreshAdminStats(); }
@@ -278,14 +279,13 @@
     }
     list.innerHTML = '';
     available.forEach(function(row) {
-      var key  = row.license || row.key || String(row.id || '');
+      var key  = row.key;
       var days = row.days ? row.days + 'd' : '';
-      var id   = String(row.id || key).replace(/'/g, "\\'");
       var item = document.createElement('div');
       item.className = 'key-item';
       item.innerHTML = '<span class="key-item-code">' + key + '</span>'
         + (days ? '<span class="key-item-meta">' + days + '</span>' : '')
-        + '<button class="btn btn-danger btn-xs" onclick="deleteAvailableLicense(\'' + id + '\')">Delete</button>';
+        + '<button class="btn btn-danger btn-xs" onclick="deleteAvailableLicense(\'' + key + '\')">Delete</button>';
       list.appendChild(item);
     });
   }
@@ -293,40 +293,33 @@
   function populateUsers(users, banned) {
     var tbody = document.getElementById('userTableBody');
     if (!tbody) return;
-    var entries = Object.entries(users);
-    if (!entries.length) {
+    if (!users.length) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-3);">No users yet.</td></tr>';
       return;
     }
     tbody.innerHTML = '';
-    entries.forEach(function(entry) {
-      var id   = entry[0];
-      var data = entry[1];
-      var isBanned    = banned.includes(data.hwid);
-      var isSuspended = data.status === 'suspended';
-      var timeLeft    = getTimeRemaining(data.expiry);
-      var isExpired   = timeLeft === 'Expired';
+    users.forEach(function(data) {
+      var id   = data.key;
+      var isBanned    = data.banned;
+      var isExpired   = data.time_left === 'Expired';
       var badgeHtml   = isBanned        ? '<span class="badge badge-red">banned</span>'
-                      : isSuspended     ? '<span class="badge badge-amber">suspended</span>'
                       : isExpired       ? '<span class="badge badge-red">expired</span>'
                                         : '<span class="badge badge-green">active</span>';
       var eId   = esc(id);
       var eHwid = esc(data.hwid || '');
       var tr = document.createElement('tr');
-      tr.dataset.searchText = ((data.username||'') + id + (data.license||'') + (data.hwid||'')).toLowerCase();
+      tr.dataset.searchText = (id + (data.hwid||'')).toLowerCase();
       tr.innerHTML =
-        '<td><span class="col-name">' + (data.username || 'unknown') + '</span><br>'
+        '<td><span class="col-name">User</span><br>'
         + '<span class="col-mono sensitive" style="font-size:0.65rem;color:var(--text-3);">' + id + '</span></td>'
-        + '<td><span class="col-mono sensitive">' + (data.license || '—') + '</span></td>'
+        + '<td><span class="col-mono sensitive">' + id + '</span></td>'
         + '<td><span class="col-mono sensitive" style="font-size:0.7rem;">' + (data.hwid || '—') + '</span></td>'
-        + '<td>' + badgeHtml + '<br><span style="font-size:0.68rem;color:var(--text-3);">' + timeLeft + '</span></td>'
-        + '<td><span class="col-mono sensitive" style="font-size:0.7rem;">' + (data.ip || 'n/a') + '</span></td>'
+        + '<td>' + badgeHtml + '<br><span style="font-size:0.68rem;color:var(--text-3);">' + data.time_left + '</span></td>'
+        + '<td><span class="col-mono sensitive" style="font-size:0.7rem;">n/a</span></td>'
         + '<td><div class="col-actions">'
-        + '<button class="btn btn-ghost btn-xs" onclick="giveLicense(\'' + eId + '\')">Give</button>'
-        + '<button class="btn btn-danger btn-xs" onclick="takeLicense(\'' + eId + '\')">Take</button>'
         + '<button class="btn btn-ghost btn-xs" onclick="takeAction(\'reset\',\'' + eId + '\')">Reset HW</button>'
-        + '<button class="btn btn-success btn-xs" onclick="takeAction(\'unban\',\'' + eHwid + '\')">Unban</button>'
-        + '<button class="btn btn-danger btn-xs" onclick="takeAction(\'ban\',\'' + eHwid + '\')">Ban</button>'
+        + '<button class="btn btn-success btn-xs" onclick="takeAction(\'unban\',\'' + eId + '\')">Unban</button>'
+        + '<button class="btn btn-danger btn-xs" onclick="takeAction(\'ban\',\'' + eId + '\')">Ban</button>'
         + '<button class="btn btn-danger btn-xs" onclick="takeAction(\'wipe\',\'' + eId + '\')">Wipe</button>'
         + '</div></td>';
       tbody.appendChild(tr);
@@ -356,9 +349,12 @@
   async function takeAction(action, targetOverride, extra) {
     var target = targetOverride || _adminState.target;
     if (!target) return showToast('No target selected.', 'warning');
-    var body = { action: action, target: target };
-    if (extra && typeof extra === 'object') Object.assign(body, extra);
-    var res = await apiCall('/admin/action', 'POST', body);
+    var res;
+    if (action === 'wipe' || action === 'take_license') res = await apiCall('/admin/licenses/' + target, 'DELETE');
+    else if (action === 'ban') res = await apiCall('/admin/licenses/' + target + '/ban', 'PUT');
+    else if (action === 'unban') res = await apiCall('/admin/licenses/' + target + '/unban', 'PUT');
+    else if (action === 'reset') res = await apiCall('/admin/licenses/' + target + '/resetwid', 'PUT');
+    else return showToast('Unknown action.', 'error');
     if (res.status === 'success') {
       var msg = res.license ? (res.message + '\n\nKey: ' + res.license + '\nExpires: ' + res.expiry) : (res.message || 'Done.');
       showToast(msg, 'success', res.license ? 7000 : 4000);
@@ -398,10 +394,9 @@
 
   async function generateLicense() {
     var daysEl   = document.getElementById('genDays')   || document.getElementById('qDays');
-    var prefixEl = document.getElementById('genPrefix') || document.getElementById('qPrefix');
     var days   = parseInt(daysEl ? daysEl.value : '30', 10);
-    var prefix = prefixEl ? prefixEl.value : '';
-    var res = await apiCall('/admin/create_license', 'POST', { days: days, prefix: prefix });
+    var duration = days == 1 ? "day" : days == 7 ? "week" : days == 30 ? "month" : "perm";
+    var res = await apiCall('/admin/licenses', 'POST', { duration: duration });
     if (res.status === 'success') {
       showToast('Created: ' + res.license, 'success', 7000);
       logActivity('create_license', res.license || '—');
@@ -413,9 +408,8 @@
 
   async function updateProduct() {
     var version = document.getElementById('updateVersion').value.trim();
-    var url     = document.getElementById('updateUrl').value.trim();
     if (!version) return showToast('Version tag required.', 'warning');
-    var res = await apiCall('/admin/publish', 'POST', { version: version, url: url });
+    var res = await apiCall('/admin/version', 'PUT', { version: version });
     if (res.status === 'success') { showToast('Update deployed.', 'success'); await refreshAdminStats(); }
     else showToast(res.message || 'Error.', 'error');
   }
@@ -423,10 +417,13 @@
   async function uploadUpdate() {
     var fileInput = document.getElementById('updateFile');
     if (!fileInput.files.length) return showToast('Select a file first.', 'warning');
+    var version = document.getElementById('updateVersion').value.trim();
+    if (!version) return showToast('Set version first.', 'warning');
     var token = getToken();
     if (!token) return showToast('Session expired.', 'error');
     var formData = new FormData();
     formData.append('file', fileInput.files[0]);
+    formData.append('version', version);
     showToast('Uploading...', 'info', 4000);
     try {
       var response = await fetch(API_URL + '/api/admin/upload', {
