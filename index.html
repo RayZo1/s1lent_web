@@ -193,9 +193,7 @@
     <div class="login-heading">Sign in</div>
     <div class="login-sub">Enter your license key to continue</div>
 
-    <div class="term-row" id="termRow">
-      <span class="term-prefix">[?]</span>
-      <span class="term-caret" id="termCaret"></span>
+    <div class="term-row" id="termRow" style="padding-left: 12px; padding-right: 12px;">
       <input
         type="password"
         id="licenseKey"
@@ -207,7 +205,6 @@
         aria-label="License key"
         maxlength="80"
       >
-      <span class="char-count" id="charCount">0</span>
     </div>
 
     <div class="auth-status" id="authStatus"></div>
@@ -227,16 +224,11 @@
 <script src="script.js"></script>
 <script>
   var inputEl  = document.getElementById('licenseKey');
-  var countEl  = document.getElementById('charCount');
-  var caretEl  = document.getElementById('termCaret');
   var rowEl    = document.getElementById('termRow');
   var statusEl = document.getElementById('authStatus');
   var loginBtn = document.getElementById('loginBtn');
 
   inputEl.addEventListener('input', function() {
-    var len = inputEl.value.length;
-    countEl.textContent = len;
-    caretEl.style.display = len > 0 ? 'none' : '';
     setStatus('', '');
     rowEl.classList.remove('err', 'ok');
   });
@@ -248,8 +240,6 @@
   }
   function resetInput() {
     inputEl.value = '';
-    countEl.textContent = '0';
-    caretEl.style.display = '';
     rowEl.classList.remove('err', 'ok');
   }
 
