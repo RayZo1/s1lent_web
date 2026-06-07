@@ -355,7 +355,7 @@
     else if (action === 'unban') res = await apiCall('/admin/licenses/' + target + '/unban', 'PUT');
     else if (action === 'reset') res = await apiCall('/admin/licenses/' + target + '/resetwid', 'PUT');
     else return showToast('Unknown action.', 'error');
-    if (res.status === 'success') {
+    if (res.success === true) {
       var msg = res.license ? (res.message + '\n\nKey: ' + res.license + '\nExpires: ' + res.expiry) : (res.message || 'Done.');
       showToast(msg, 'success', res.license ? 7000 : 4000);
       logActivity(action, target);
@@ -397,9 +397,9 @@
     var days   = parseInt(daysEl ? daysEl.value : '30', 10);
     var duration = days == 1 ? "day" : days == 7 ? "week" : days == 30 ? "month" : "perm";
     var res = await apiCall('/admin/licenses', 'POST', { duration: duration });
-    if (res.status === 'success') {
-      showToast('Created: ' + res.license, 'success', 7000);
-      logActivity('create_license', res.license || '—');
+    if (res.success === true) {
+      showToast('Created: ' + res.key, 'success', 7000);
+      logActivity('create_license', res.key || '—');
       await refreshAdminStats();
     } else {
       showToast(res.message || 'Failed to create key.', 'error');
@@ -410,7 +410,7 @@
     var version = document.getElementById('updateVersion').value.trim();
     if (!version) return showToast('Version tag required.', 'warning');
     var res = await apiCall('/admin/version', 'PUT', { version: version });
-    if (res.status === 'success') { showToast('Update deployed.', 'success'); await refreshAdminStats(); }
+    if (res.success === true) { showToast('Update deployed.', 'success'); await refreshAdminStats(); }
     else showToast(res.message || 'Error.', 'error');
   }
 
